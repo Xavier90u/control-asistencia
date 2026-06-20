@@ -32,17 +32,17 @@
         <% registros.forEach(function(r) { %>
         <tr class="hover:bg-gray-50">
           <td class="py-3 px-4 font-medium text-gray-800"><%= r.fecha %></td>
-          <td class="text-center py-3 px-4"><%= r.hora_marcacion %></td>
-          <td class="text-center py-3 px-4 text-gray-600"><%= r.hora_esperada %></td>
+          <td class="text-center py-3 px-4"><%= r.horaMarcacion %></td>
+          <td class="text-center py-3 px-4 text-gray-600"><%= r.horaEsperada %></td>
           <td class="text-center py-3 px-4">
-            <% if (r.minutos_retraso > 0) { %>
+            <% if (r.minutosRetraso > 0) { %>
               <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">Tarde</span>
             <% } else { %>
               <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">A tiempo</span>
             <% } %>
           </td>
           <td class="text-center py-3 px-4">
-            <%= r.minutos_retraso > 0 ? r.minutos_retraso + ' min' : '-' %>
+            <%= r.minutosRetraso > 0 ? r.minutosRetraso + ' min' : '-' %>
           </td>
         </tr>
         <% }) %>

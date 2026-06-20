@@ -18,10 +18,17 @@ async function marcacionView(req, res) {
   const config = await getConfigMap();
   const tzCfg = await tz.getConfig();
 
-  const asistenciaHoy = await Asistencia.findOne({
+  const asistRaw = await Asistencia.findOne({
     empleado: userId,
     fecha: fechaStr,
   }).lean();
+
+  const asistenciaHoy = asistRaw
+    ? {
+        ...asistRaw,
+        horaMarcacion: tz.formatHora(asistRaw.horaMarcacion),
+      }
+    : null;
 
   const now = tz.now();
   const horaActual = now.format("HH:mm:ss");
@@ -114,6 +121,7 @@ async function historialView(req, res) {
     ...r,
     fecha: tz.formatFecha(r.fecha),
     horaMarcacion: tz.formatHora(r.horaMarcacion),
+    horaEsperada: r.horaEsperada,
   }));
 
   res.render("empleado/historial", {
