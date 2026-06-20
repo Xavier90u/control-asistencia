@@ -189,6 +189,14 @@ function updateConfig(req, res) {
   res.redirect("/admin/config?success=Configuración actualizada");
 }
 
+async function seedData(req, res) {
+  const { seed } = require("../../seed");
+  const result = await seed(true);
+  res.redirect(
+    `/admin?success=${encodeURIComponent(result.message)}`
+  );
+}
+
 function getConfigMap() {
   const configs = db.query("SELECT * FROM configuracion");
   const map = {};
@@ -206,4 +214,5 @@ module.exports = {
   tardanzasView,
   configView,
   updateConfig,
+  seedData,
 };

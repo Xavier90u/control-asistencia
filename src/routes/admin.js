@@ -11,6 +11,7 @@ const {
   tardanzasView,
   configView,
   updateConfig,
+  seedData,
 } = require("../controllers/adminController");
 
 router.use(requireAdmin);
@@ -24,5 +25,6 @@ router.post("/empleados/:id/toggle", toggleEmpleado);
 router.get("/tardanzas", tardanzasView);
 router.get("/config", configView);
 router.post("/config", updateConfig);
+router.post("/seed", seedData);
 
 module.exports = router;

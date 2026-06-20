@@ -1,15 +1,25 @@
 const { initDB, run, query, get } = require("./src/models/db");
 const bcrypt = require("bcryptjs");
 
-async function seed() {
+async function seed(force = false) {
   await initDB();
 
   const adminExists = get("SELECT id FROM usuarios WHERE email = ?", [
     "admin@empresa.com",
   ]);
-  if (adminExists) {
-    console.log("La base de datos ya tiene datos. Elimina database.sqlite para resetear.");
-    return;
+  if (adminExists && !force) {
+    console.log(
+      "La base de datos ya tiene datos. Usa 'node seed.js --force' para regenerar."
+    );
+    return { created: false };
+  }
+
+  if (force && adminExists) {
+    run("DELETE FROM asistencia");
+    run("DELETE FROM empleados");
+    run("DELETE FROM usuarios");
+    run("DELETE FROM sessions");
+    run("DELETE FROM configuracion");
   }
 
   const adminPass = bcrypt.hashSync("admin123", 10);
@@ -18,7 +28,7 @@ async function seed() {
     ["Administrador", "admin@empresa.com", adminPass]
   );
 
-  const empleados = [
+  const empleadosData = [
     {
       nombre: "Carlos López",
       email: "carlos@empresa.com",
@@ -53,7 +63,7 @@ async function seed() {
     },
   ];
 
-  for (const emp of empleados) {
+  for (const emp of empleadosData) {
     const pass = bcrypt.hashSync(emp.password, 10);
     run(
       "INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, 'empleado')",
@@ -75,7 +85,7 @@ async function seed() {
     "SELECT e.id, u.nombre FROM empleados e JOIN usuarios u ON u.id = e.usuario_id"
   );
   const hoy = new Date();
-  for (let i = 5; i >= 0; i--) {
+  for (let i = 14; i >= 0; i--) {
     for (const emp of empleadosDb) {
       const fecha = new Date(hoy);
       fecha.setDate(fecha.getDate() - i);
@@ -98,16 +108,12 @@ async function seed() {
     }
   }
 
-  console.log("✅ Base de datos creada con datos demo.");
-  console.log("");
-  console.log("Credenciales:");
-  console.log("  Admin:     admin@empresa.com / admin123");
-  console.log("  Empleados: carlos@empresa.com / 123456");
-  console.log("             maria@empresa.com  / 123456");
-  console.log("             juan@empresa.com   / 123456");
-  console.log("             ana@empresa.com    / 123456");
-  console.log("");
-  console.log("Ejecuta 'npm start' para iniciar el servidor.");
+  const msg = "Base de datos creada con datos demo (14 días).";
+  console.log("✅ " + msg);
+  return { created: true, message: msg };
 }
 
-seed().catch(console.error);
+const force = process.argv.includes("--force");
+seed(force).catch(console.error);
+
+module.exports = { seed };
