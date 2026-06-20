@@ -1,0 +1,111 @@
+<% titulo = 'Empleados - Admin'; %>
+<div class="flex justify-between items-center mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">Empleados</h1>
+  <button onclick="document.getElementById('modalCreate').classList.remove('hidden')"
+    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+    + Nuevo Empleado
+  </button>
+</div>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+      <tr>
+        <th class="text-left py-3 px-4">Nombre</th>
+        <th class="text-left py-3 px-4">Email</th>
+        <th class="text-center py-3 px-4">Estado</th>
+        <th class="text-center py-3 px-4">Hora Inicio</th>
+        <th class="text-center py-3 px-4">Tolerancia</th>
+        <th class="text-center py-3 px-4">Dto./min</th>
+        <th class="text-center py-3 px-4">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% empleados.forEach(function(emp) { %>
+      <tr class="hover:bg-gray-50">
+        <td class="py-3 px-4 font-medium text-gray-800"><%= emp.nombre %></td>
+        <td class="py-3 px-4 text-gray-600"><%= emp.email %></td>
+        <td class="text-center py-3 px-4">
+          <% if (emp.activo) { %>
+            <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">Activo</span>
+          <% } else { %>
+            <span class="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">Inactivo</span>
+          <% } %>
+        </td>
+        <td class="text-center py-3 px-4 text-gray-600"><%= emp.hora_inicio || 'General' %></td>
+        <td class="text-center py-3 px-4 text-gray-600"><%= emp.tolerancia_minutos !== null ? emp.tolerancia_minutos + ' min' : 'General' %></td>
+        <td class="text-center py-3 px-4 text-gray-600"><%= emp.descuento_por_minuto !== null ? 'S/ ' + parseFloat(emp.descuento_por_minuto).toFixed(2) : 'General' %></td>
+        <td class="text-center py-3 px-4">
+          <div class="flex justify-center space-x-2">
+            <a href="/admin/empleados/<%= emp.id %>/editar" 
+              class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-xs font-medium">Editar</a>
+            <form action="/admin/empleados/<%= emp.id %>/toggle" method="POST" class="inline">
+              <button type="submit"
+                class="<%= emp.activo ? 'text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100' : 'text-green-600 hover:text-green-800 bg-green-50 hover:bg-green-100' %> px-3 py-1 rounded text-xs font-medium">
+                <%= emp.activo ? 'Desactivar' : 'Activar' %>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      <% }) %>
+      <% if (empleados.length === 0) { %>
+      <tr>
+        <td colspan="7" class="text-center py-8 text-gray-500">No hay empleados registrados</td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<div id="modalCreate" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="flex justify-between items-center p-6 border-b">
+      <h2 class="text-lg font-bold text-gray-800">Nuevo Empleado</h2>
+      <button onclick="document.getElementById('modalCreate').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <form action="/admin/empleados" method="POST" class="p-6 space-y-4">
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Nombre completo</label>
+        <input type="text" name="nombre" required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Email</label>
+        <input type="email" name="email" required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Contraseña</label>
+        <input type="password" name="password" required
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-gray-700 text-sm font-medium mb-1">Hora inicio</label>
+          <input type="time" name="hora_inicio"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          <p class="text-xs text-gray-400 mt-0.5">Vacío = General</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-medium mb-1">Tolerancia (min)</label>
+          <input type="number" name="tolerancia_minutos" min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          <p class="text-xs text-gray-400 mt-0.5">Vacío = General</p>
+        </div>
+        <div>
+          <label class="block text-gray-700 text-sm font-medium mb-1">Dto. x minuto (S/)</label>
+          <input type="number" step="0.01" min="0" name="descuento_por_minuto"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+          <p class="text-xs text-gray-400 mt-0.5">Vacío = General</p>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-3 pt-4 border-t">
+        <button type="button" onclick="document.getElementById('modalCreate').classList.add('hidden')"
+          class="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg text-sm">Cancelar</button>
+        <button type="submit"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

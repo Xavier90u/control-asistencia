@@ -1,0 +1,79 @@
+<% titulo = 'Marcar Entrada'; %>
+<div class="max-w-lg mx-auto">
+  <div class="text-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Marcar Entrada</h1>
+    <p class="text-gray-500">Bienvenido, <%= user.nombre %></p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-8 text-center">
+    <% if (asistenciaHoy) { %>
+      <div class="text-center">
+        <div class="text-6xl mb-4">✅</div>
+        <h2 class="text-xl font-bold text-green-600 mb-2">Entrada registrada hoy</h2>
+        <div class="bg-green-50 rounded-lg p-4 inline-block">
+          <p class="text-gray-600">Hora de marcación:</p>
+          <p class="text-2xl font-bold text-gray-800"><%= asistenciaHoy.hora_marcacion %></p>
+          <p class="text-gray-500 text-sm mt-1">Fecha: <%= asistenciaHoy.fecha %></p>
+          <% if (asistenciaHoy.minutos_retraso > 0) { %>
+            <div class="mt-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium inline-block">
+              <%= asistenciaHoy.minutos_retraso %> min de retraso
+            </div>
+          <% } else { %>
+            <div class="mt-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium inline-block">
+              A tiempo
+            </div>
+          <% } %>
+        </div>
+        <p class="text-gray-400 text-sm mt-4">Ya registraste tu entrada hoy. Vuelve mañana.</p>
+      </div>
+    <% } else { %>
+      <div class="mb-6">
+        <div class="text-6xl mb-2">⏰</div>
+        <div class="text-3xl font-bold text-gray-800 mb-1" id="reloj"><%= horaActual %></div>
+        <p class="text-gray-500 text-sm" id="fecha"></p>
+      </div>
+
+      <% if (typeof retraso !== 'undefined' && retraso) { %>
+      <div class="bg-amber-50 border border-amber-200 text-amber-700 p-3 rounded-lg mb-4 text-sm">
+        ⚠️ Registraste tu entrada con <strong><%= retraso %> minutos</strong> de retraso
+      </div>
+      <% } %>
+
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 text-sm text-left space-y-1">
+        <p><span class="text-gray-600">Hora esperada:</span> <strong><%= empleado.hora_inicio || config.hora_inicio_general || '08:00' %></strong></p>
+        <p><span class="text-gray-600">Tolerancia:</span> <strong><%= empleado.tolerancia_minutos !== null ? empleado.tolerancia_minutos : (config.tolerancia_general || '10') %> min</strong></p>
+        <p><span class="text-gray-600">Descuento por minuto:</span> <strong>S/ <%= parseFloat(empleado.descuento_por_minuto || config.descuento_por_minuto || '0.50').toFixed(2) %></strong></p>
+      </div>
+
+      <form action="/empleado/marcar" method="POST">
+        <button type="submit" id="btnMarcar"
+          class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg transition duration-200 shadow-lg hover:shadow-xl">
+          MARCAR ENTRADA
+        </button>
+      </form>
+    <% } %>
+
+    <div class="mt-6">
+      <a href="/empleado/historial" class="text-blue-600 hover:text-blue-800 text-sm">Ver mi historial &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function actualizarReloj() {
+  const ahora = new Date();
+  const h = String(ahora.getHours()).padStart(2, '0');
+  const m = String(ahora.getMinutes()).padStart(2, '0');
+  const s = String(ahora.getSeconds()).padStart(2, '0');
+  const el = document.getElementById('reloj');
+  if (el) el.textContent = h + ':' + m + ':' + s;
+
+  const fechaEl = document.getElementById('fecha');
+  if (fechaEl) {
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    fechaEl.textContent = ahora.toLocaleDateString('es-PE', opciones);
+  }
+}
+actualizarReloj();
+setInterval(actualizarReloj, 1000);
+</script>

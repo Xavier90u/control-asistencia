@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof titulo !== 'undefined' ? titulo : 'Control de Asistencia' %></title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <% if (user) { %>
+  <nav class="bg-blue-700 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center space-x-8">
+          <a href="/" class="font-bold text-lg">Control Asistencia</a>
+          <% if (user.rol === 'admin') { %>
+            <a href="/admin" class="hover:text-blue-200 text-sm">Dashboard</a>
+            <a href="/admin/empleados" class="hover:text-blue-200 text-sm">Empleados</a>
+            <a href="/admin/tardanzas" class="hover:text-blue-200 text-sm">Tardanzas</a>
+            <a href="/admin/config" class="hover:text-blue-200 text-sm">Configuración</a>
+          <% } else { %>
+            <a href="/empleado" class="hover:text-blue-200 text-sm">Marcar Entrada</a>
+            <a href="/empleado/historial" class="hover:text-blue-200 text-sm">Mi Historial</a>
+          <% } %>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-blue-200"><%= user.nombre %></span>
+          <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-sm">Salir</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <% } %>
+
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <% if (typeof success !== 'undefined' && success) { %>
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded flex justify-between items-center">
+      <span><%= success %></span>
+      <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900 font-bold">&times;</button>
+    </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded flex justify-between items-center">
+      <span><%= error %></span>
+      <button onclick="this.parentElement.remove()" class="text-red-700 hover:text-red-900 font-bold">&times;</button>
+    </div>
+    <% } %>
+    <%- body %>
+  </main>
+</body>
+</html>

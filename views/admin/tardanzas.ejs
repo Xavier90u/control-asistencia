@@ -1,0 +1,90 @@
+<% titulo = 'Tardanzas - Admin'; %>
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Reporte de Tardanzas</h1>
+
+<div class="bg-white rounded-xl shadow-md p-4 mb-6">
+  <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+    <div>
+      <label class="block text-gray-600 text-xs font-medium mb-1">Desde</label>
+      <input type="date" name="fecha_desde" value="<%= filtros.fecha_desde || '' %>"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-600 text-xs font-medium mb-1">Hasta</label>
+      <input type="date" name="fecha_hasta" value="<%= filtros.fecha_hasta || '' %>"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-600 text-xs font-medium mb-1">Empleado</label>
+      <select name="empleado_id"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        <option value="">Todos</option>
+        <% empleados.forEach(function(emp) { %>
+        <option value="<%= emp.id %>" <%= filtros.empleado_id == emp.id ? 'selected' : '' %>><%= emp.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div>
+      <button type="submit"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Filtrar</button>
+    </div>
+  </form>
+</div>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="text-left py-3 px-4">Empleado</th>
+          <th class="text-left py-3 px-4">Fecha</th>
+          <th class="text-center py-3 px-4">Hora Esperada</th>
+          <th class="text-center py-3 px-4">Hora Marcada</th>
+          <th class="text-center py-3 px-4">Retraso (min)</th>
+          <th class="text-center py-3 px-4">Dto. x min</th>
+          <th class="text-center py-3 px-4">Descuento Total</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <% registros.forEach(function(r) { %>
+        <tr class="hover:bg-gray-50 <%= r.minutos_retraso > 0 ? 'bg-red-50' : 'bg-green-50' %>">
+          <td class="py-3 px-4 font-medium text-gray-800"><%= r.empleado_nombre %></td>
+          <td class="py-3 px-4 text-gray-600"><%= r.fecha %></td>
+          <td class="text-center py-3 px-4 text-gray-600"><%= r.hora_esperada %></td>
+          <td class="text-center py-3 px-4 font-medium <%= r.minutos_retraso > 0 ? 'text-red-600' : 'text-green-600' %>">
+            <%= r.hora_marcacion %>
+          </td>
+          <td class="text-center py-3 px-4">
+            <% if (r.minutos_retraso > 0) { %>
+              <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold"><%= r.minutos_retraso %> min</span>
+            <% } else { %>
+              <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">A tiempo</span>
+            <% } %>
+          </td>
+          <td class="text-center py-3 px-4 text-gray-600">S/ <%= parseFloat(r.descuento_x_minuto).toFixed(2) %></td>
+          <td class="text-center py-3 px-4 font-bold <%= r.minutos_retraso > 0 ? 'text-red-600' : 'text-green-600' %>">
+            S/ <%= Math.max(0, parseFloat(r.descuento_total || 0)).toFixed(2) %>
+          </td>
+        </tr>
+        <% }) %>
+        <% if (registros.length === 0) { %>
+        <tr>
+          <td colspan="7" class="text-center py-8 text-gray-500">No se encontraron registros</td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%
+  var totalDescuento = 0;
+  registros.forEach(function(r) {
+    totalDescuento += Math.max(0, parseFloat(r.descuento_total || 0));
+  });
+%>
+<% if (registros.length > 0) { %>
+<div class="mt-4 bg-white rounded-xl shadow-md p-4 flex justify-between items-center">
+  <span class="text-gray-600">Total registros: <strong><%= registros.length %></strong></span>
+  <span class="text-lg font-bold text-red-600">Total descuentos: S/ <%= totalDescuento.toFixed(2) %></span>
+</div>
+<% } %>

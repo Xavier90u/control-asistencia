@@ -1,0 +1,71 @@
+<% titulo = 'Mi Historial'; %>
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Mi Historial de Asistencia</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500">
+    <p class="text-gray-500 text-xs font-medium">Días registrados</p>
+    <p class="text-2xl font-bold text-gray-800"><%= resumen.total_dias %></p>
+  </div>
+  <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-amber-500">
+    <p class="text-gray-500 text-xs font-medium">Tardanzas</p>
+    <p class="text-2xl font-bold text-amber-600"><%= resumen.tardanzas || 0 %></p>
+  </div>
+  <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-red-500">
+    <p class="text-gray-500 text-xs font-medium">Total minutos de retraso</p>
+    <p class="text-2xl font-bold text-red-600"><%= resumen.total_minutos_retraso || 0 %></p>
+  </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+        <tr>
+          <th class="text-left py-3 px-4">Fecha</th>
+          <th class="text-center py-3 px-4">Hora Marcada</th>
+          <th class="text-center py-3 px-4">Hora Esperada</th>
+          <th class="text-center py-3 px-4">Estado</th>
+          <th class="text-center py-3 px-4">Minutos Retraso</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <% registros.forEach(function(r) { %>
+        <tr class="hover:bg-gray-50">
+          <td class="py-3 px-4 font-medium text-gray-800"><%= r.fecha %></td>
+          <td class="text-center py-3 px-4"><%= r.hora_marcacion %></td>
+          <td class="text-center py-3 px-4 text-gray-600"><%= r.hora_esperada %></td>
+          <td class="text-center py-3 px-4">
+            <% if (r.minutos_retraso > 0) { %>
+              <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-medium">Tarde</span>
+            <% } else { %>
+              <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">A tiempo</span>
+            <% } %>
+          </td>
+          <td class="text-center py-3 px-4">
+            <%= r.minutos_retraso > 0 ? r.minutos_retraso + ' min' : '-' %>
+          </td>
+        </tr>
+        <% }) %>
+        <% if (registros.length === 0) { %>
+        <tr>
+          <td colspan="5" class="text-center py-8 text-gray-500">Aún no tienes registros de asistencia</td>
+        </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (totalPages > 1) { %>
+<div class="flex justify-center mt-6 space-x-2">
+  <% if (page > 1) { %>
+    <a href="/empleado/historial?page=<%= page - 1 %>" class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50">&laquo; Anterior</a>
+  <% } %>
+  <% for (var i = 1; i <= totalPages; i++) { %>
+    <a href="/empleado/historial?page=<%= i %>" class="px-3 py-2 border rounded-lg text-sm <%= i === page ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 hover:bg-gray-50' %>"><%= i %></a>
+  <% } %>
+  <% if (page < totalPages) { %>
+    <a href="/empleado/historial?page=<%= page + 1 %>" class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Siguiente &raquo;</a>
+  <% } %>
+</div>
+<% } %>
