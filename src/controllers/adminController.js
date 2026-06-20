@@ -148,15 +148,27 @@ async function tardanzasView(req, res) {
   const descuentoGeneral = parseFloat(config.descuento_por_minuto || "0.50");
 
   const registrosConDescuento = registros.map((r) => {
+    const horaInicioEmp =
+      r.empleado?.horaInicio || config.hora_inicio_general || "08:00";
+    const toleranciaEmp =
+      r.empleado?.toleranciaMinutos ??
+      parseInt(config.tolerancia_general || "10");
+
+    const [hH, hM] = horaInicioEmp.split(":").map(Number);
+    const [aH, aM] = (r.horaMarcacion || "00:00").split(":").map(Number);
+    const minutosEsperados = hH * 60 + hM + toleranciaEmp;
+    const minutosActuales = aH * 60 + aM;
+    const minutosRetraso = Math.max(0, minutosActuales - minutosEsperados);
+
     const dtoXMinuto =
       r.empleado?.descuentoPorMinuto ?? descuentoGeneral;
-    const descuentoTotal = Math.max(0, (r.minutosRetraso || 0) * dtoXMinuto);
+    const descuentoTotal = (minutosRetraso * dtoXMinuto);
     return {
       id: r._id,
       fecha: r.fecha,
       hora_marcacion: r.horaMarcacion,
-      hora_esperada: r.horaEsperada,
-      minutos_retraso: r.minutosRetraso,
+      hora_esperada: horaInicioEmp,
+      minutos_retraso: minutosRetraso,
       empleado_nombre: r.empleado?.nombre || "—",
       empleado_email: r.empleado?.email || "—",
       descuento_x_minuto: dtoXMinuto,

@@ -82,7 +82,11 @@ async function seed(force = false) {
   ];
   await Configuracion.insertMany(defaultConfig);
 
-  const empleados = await Usuario.find({ rol: "empleado" });
+  const empleados = await Usuario.find({ rol: "empleado" }).lean();
+  const configDocs = await Configuracion.find().lean();
+  const cfg = {};
+  configDocs.forEach((c) => (cfg[c.clave] = c.valor));
+
   const hoy = new Date();
 
   for (let i = 14; i >= 0; i--) {
@@ -92,22 +96,27 @@ async function seed(force = false) {
       if (fecha.getDay() === 0 || fecha.getDay() === 6) continue;
 
       const fechaStr = fecha.toISOString().split("T")[0];
-      const horaBase = 8;
-      const minBase = Math.floor(Math.random() * 30);
-      const retraso = Math.floor(Math.random() * 25);
+      const horaInicioEmp = emp.horaInicio || cfg.hora_inicio_general || "08:00";
+      const toleranciaEmp = emp.toleranciaMinutos ?? parseInt(cfg.tolerancia_general || "10");
 
-      const horaMinutos = horaBase * 60 + minBase + retraso;
+      const [hH, hM] = horaInicioEmp.split(":").map(Number);
+      const minInicio = hH * 60 + hM;
+      const minBase = minInicio + Math.floor(Math.random() * 20);
+      const retraso = Math.max(0, Math.floor(Math.random() * 25) - toleranciaEmp);
+
+      const horaMinutos = minBase + retraso;
       const hora = String(Math.floor(horaMinutos / 60)).padStart(2, "0");
       const min = String(horaMinutos % 60).padStart(2, "0");
       const seg = String(Math.floor(Math.random() * 60)).padStart(2, "0");
+      const minutosRetraso = Math.max(0, horaMinutos - (minInicio + toleranciaEmp));
 
       try {
         await Asistencia.create({
           empleado: emp._id,
           fecha: fechaStr,
           horaMarcacion: `${hora}:${min}:${seg}`,
-          horaEsperada: "08:00",
-          minutosRetraso: retraso,
+          horaEsperada: horaInicioEmp,
+          minutosRetraso,
         });
       } catch (e) {
         // ignore duplicate
