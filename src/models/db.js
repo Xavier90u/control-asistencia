@@ -1,8 +1,35 @@
 const initSqlJs = require("sql.js");
 const fs = require("fs");
 const path = require("path");
+const session = require("express-session");
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "..", "..", "database.sqlite");
+const DEFAULT_DB_PATH = path.join(__dirname, "..", "..", "database.sqlite");
+let DB_PATH = process.env.DB_PATH || DEFAULT_DB_PATH;
+
+function resolveDBPath() {
+  if (!process.env.DB_PATH) {
+    const dir = path.dirname(DB_PATH);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    return;
+  }
+  const dir = path.dirname(DB_PATH);
+  try {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const testFile = path.join(dir, ".write-test");
+    fs.writeFileSync(testFile, "test");
+    fs.unlinkSync(testFile);
+  } catch (e) {
+    console.warn(
+      `[DB] No se pudo usar DB_PATH=${DB_PATH}, usando local. Razón: ${e.message}`
+    );
+    DB_PATH = DEFAULT_DB_PATH;
+    const fallbackDir = path.dirname(DB_PATH);
+    if (!fs.existsSync(fallbackDir))
+      fs.mkdirSync(fallbackDir, { recursive: true });
+  }
+}
+
+resolveDBPath();
 
 let db = null;
 
@@ -62,6 +89,7 @@ function createTables() {
       valor TEXT NOT NULL
     )
   `);
+  addSessionTable();
   insertDefaults();
 }
 
@@ -85,10 +113,6 @@ function insertDefaults() {
 }
 
 function save() {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
   const data = db.export();
   fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
@@ -120,4 +144,60 @@ function exec(sql) {
   return result;
 }
 
-module.exports = { initDB, run, query, get, exec };
+class SQLiteSessionStore extends session.Store {
+  get(sid, cb) {
+    try {
+      const row = get(
+        "SELECT data FROM sessions WHERE sid = ? AND expires > datetime('now')",
+        [sid]
+      );
+      cb(null, row ? JSON.parse(row.data) : null);
+    } catch (e) {
+      cb(e);
+    }
+  }
+  set(sid, session, cb) {
+    try {
+      const maxAge = (session.cookie && session.cookie.maxAge) || 86400000;
+      const expires = new Date(Date.now() + maxAge).toISOString();
+      run("DELETE FROM sessions WHERE sid = ?", [sid]);
+      run(
+        "INSERT OR REPLACE INTO sessions (sid, data, expires) VALUES (?, ?, ?)",
+        [sid, JSON.stringify(session), expires]
+      );
+      cb(null);
+    } catch (e) {
+      cb(e);
+    }
+  }
+  destroy(sid, cb) {
+    try {
+      run("DELETE FROM sessions WHERE sid = ?", [sid]);
+      cb(null);
+    } catch (e) {
+      cb(e);
+    }
+  }
+  touch(sid, session, cb) {
+    try {
+      const maxAge = (session.cookie && session.cookie.maxAge) || 86400000;
+      const expires = new Date(Date.now() + maxAge).toISOString();
+      run("UPDATE sessions SET expires = ? WHERE sid = ?", [expires, sid]);
+      cb(null);
+    } catch (e) {
+      cb(e);
+    }
+  }
+}
+
+function addSessionTable() {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      sid TEXT PRIMARY KEY,
+      data TEXT NOT NULL,
+      expires TEXT NOT NULL
+    )
+  `);
+}
+
+module.exports = { initDB, run, query, get, exec, SQLiteSessionStore, addSessionTable };

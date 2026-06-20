@@ -3,19 +3,21 @@ const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 require("dotenv").config();
-const { initDB } = require("./src/models/db");
+const { initDB, SQLiteSessionStore } = require("./src/models/db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 8 * 60 * 60 * 1000 },
+    store: new SQLiteSessionStore(),
   })
 );
 
