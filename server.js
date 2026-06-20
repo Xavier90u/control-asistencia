@@ -5,6 +5,7 @@ const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const { MongoStore } = require("connect-mongo");
+const { initDefaults } = require("./src/utils/timezone");
 require("dotenv").config();
 
 const app = express();
@@ -22,6 +23,8 @@ async function start() {
       tlsAllowInvalidCertificates: true,
     });
     console.log("Conectado a MongoDB");
+    await initDefaults();
+    console.log("Timezone config initialized");
   } catch (e) {
     console.error("Error conectando a MongoDB:", e.message);
     process.exit(1);

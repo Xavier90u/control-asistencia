@@ -1,0 +1,14 @@
+[
+  {
+    "clave": "hora_inicio_general",
+    "valor": "08:00"
+  },
+  {
+    "clave": "tolerancia_general",
+    "valor": "10"
+  },
+  {
+    "clave": "descuento_por_minuto",
+    "valor": "0.50"
+  }
+]

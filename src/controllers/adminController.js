@@ -2,25 +2,27 @@ const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
 const Configuracion = require("../models/Configuracion");
+const tz = require("../utils/timezone");
 
 async function dashboard(req, res) {
   const totalEmpleados = await Usuario.countDocuments({
     rol: "empleado",
     activo: true,
   });
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = tz.todayStr();
   const asistenciasHoy = await Asistencia.countDocuments({ fecha: hoy });
   const tardanzasHoy = await Asistencia.countDocuments({
     fecha: hoy,
     minutosRetraso: { $gt: 0 },
   });
   const config = await getConfigMap();
+  const tzCfg = await tz.getConfig();
 
   res.render("admin/dashboard", {
     totalEmpleados,
     asistenciasHoy,
     tardanzasHoy,
-    config,
+    config: { ...config, ...tzCfg },
   });
 }
 
@@ -145,6 +147,7 @@ async function tardanzasView(req, res) {
     .lean();
 
   const config = await getConfigMap();
+  const tzCfg = await tz.getConfig();
   const descuentoGeneral = parseFloat(config.descuento_por_minuto || "0.50");
 
   const registrosConDescuento = registros.map((r) => {
@@ -154,19 +157,18 @@ async function tardanzasView(req, res) {
       r.empleado?.toleranciaMinutos ??
       parseInt(config.tolerancia_general || "10");
 
-    const [hH, hM] = horaInicioEmp.split(":").map(Number);
-    const [aH, aM] = (r.horaMarcacion || "00:00").split(":").map(Number);
-    const minutosEsperados = hH * 60 + hM + toleranciaEmp;
-    const minutosActuales = aH * 60 + aM;
-    const minutosRetraso = Math.max(0, minutosActuales - minutosEsperados);
+    const minInicio = tz.horasToMinutes(horaInicioEmp);
+    const minActual = tz.horasToMinutes(r.horaMarcacion);
+    const minutosRetraso = Math.max(0, minActual - (minInicio + toleranciaEmp));
 
     const dtoXMinuto =
       r.empleado?.descuentoPorMinuto ?? descuentoGeneral;
-    const descuentoTotal = (minutosRetraso * dtoXMinuto);
+    const descuentoTotal = minutosRetraso * dtoXMinuto;
+
     return {
       id: r._id,
-      fecha: r.fecha,
-      hora_marcacion: r.horaMarcacion,
+      fecha: tz.formatFecha(r.fecha),
+      hora_marcacion: tz.formatHora(r.horaMarcacion),
       hora_esperada: horaInicioEmp,
       minutos_retraso: minutosRetraso,
       empleado_nombre: r.empleado?.nombre || "—",
@@ -188,32 +190,44 @@ async function tardanzasView(req, res) {
     registros: registrosConDescuento,
     empleados,
     filtros: req.query,
+    tzCfg,
   });
 }
 
 async function configView(req, res) {
   const config = await getConfigMap();
-  res.render("admin/config", { config });
+  const tzCfg = await tz.getConfig();
+  res.render("admin/config", { config: { ...config, ...tzCfg } });
 }
 
 async function updateConfig(req, res) {
-  const { hora_inicio_general, tolerancia_general, descuento_por_minuto } =
-    req.body;
+  const {
+    hora_inicio_general,
+    tolerancia_general,
+    descuento_por_minuto,
+    zona_horaria,
+    formato_fecha,
+    formato_hora,
+  } = req.body;
 
   const updates = [
     { clave: "hora_inicio_general", valor: hora_inicio_general },
     { clave: "tolerancia_general", valor: tolerancia_general },
     { clave: "descuento_por_minuto", valor: descuento_por_minuto },
+    { clave: "zona_horaria", valor: zona_horaria },
+    { clave: "formato_fecha", valor: formato_fecha },
+    { clave: "formato_hora", valor: formato_hora },
   ];
 
   for (const u of updates) {
-    if (u.valor !== undefined && u.valor !== null)
+    if (u.valor !== undefined && u.valor !== null && u.valor !== "")
       await Configuracion.updateOne(
         { clave: u.clave },
         { $set: { valor: u.valor } },
         { upsert: true }
       );
   }
+  tz.getConfig.resetCache?.();
   res.redirect("/admin/config?success=Configuración actualizada");
 }
 

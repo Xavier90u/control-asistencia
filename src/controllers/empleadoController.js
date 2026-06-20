@@ -1,6 +1,7 @@
 const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
 const Configuracion = require("../models/Configuracion");
+const tz = require("../utils/timezone");
 
 async function marcacionView(req, res) {
   const mongoose = require("mongoose");
@@ -13,21 +14,23 @@ async function marcacionView(req, res) {
     descuento_por_minuto: doc.descuentoPorMinuto,
   };
 
-  const hoy = new Date();
-  const fechaStr = hoy.toISOString().split("T")[0];
+  const fechaStr = tz.todayStr();
+  const config = await getConfigMap();
+  const tzCfg = await tz.getConfig();
 
   const asistenciaHoy = await Asistencia.findOne({
     empleado: userId,
     fecha: fechaStr,
   }).lean();
 
-  const config = await getConfigMap();
+  const now = tz.now();
+  const horaActual = now.format("HH:mm:ss");
 
   res.render("empleado/marcacion", {
     empleado,
     asistenciaHoy,
-    config,
-    horaActual: hoy.toLocaleTimeString("es-PE", { hour12: false }),
+    config: { ...config, ...tzCfg },
+    horaActual,
     retraso: req.query.retraso,
   });
 }
@@ -40,9 +43,8 @@ async function marcar(req, res) {
   const empleado = await Usuario.findById(empleadoId).lean();
   if (!empleado) return res.redirect("/empleado?error=Empleado no encontrado");
 
-  const hoy = new Date();
-  const fechaStr = hoy.toISOString().split("T")[0];
-  const horaStr = hoy.toLocaleTimeString("es-PE", { hour12: false });
+  const fechaStr = tz.todayStr();
+  const horaStr = tz.timeStr();
 
   const existing = await Asistencia.findOne({
     empleado: empleadoId,
@@ -58,12 +60,9 @@ async function marcar(req, res) {
     empleado.toleranciaMinutos ??
     parseInt(config.tolerancia_general || "10");
 
-  const [horaEsperadaH, minEsperadoM] = horaInicio.split(":").map(Number);
-  const [horaActualH, minActualM] = horaStr.split(":").map(Number);
-
-  const minutosEsperados = horaEsperadaH * 60 + minEsperadoM + tolerancia;
-  const minutosActuales = horaActualH * 60 + minActualM;
-  const minutosRetraso = Math.max(0, minutosActuales - minutosEsperados);
+  const minInicio = tz.horasToMinutes(horaInicio);
+  const minActual = tz.horasToMinutes(horaStr);
+  const minutosRetraso = Math.max(0, minActual - (minInicio + tolerancia));
 
   await Asistencia.create({
     empleado: empleadoId,
@@ -81,7 +80,8 @@ async function marcar(req, res) {
 }
 
 async function historialView(req, res) {
-  const userId = req.session.user.id;
+  const mongoose = require("mongoose");
+  const userId = new mongoose.Types.ObjectId(req.session.user.id);
 
   const page = parseInt(req.query.page) || 1;
   const limit = 15;
@@ -97,28 +97,31 @@ async function historialView(req, res) {
     .lean();
 
   const resumen = await Asistencia.aggregate([
-    { $match: { empleado: usuarioId(userId) } },
+    { $match: { empleado: userId } },
     {
       $group: {
         _id: null,
         total_dias: { $sum: 1 },
-        tardanzas: { $sum: { $cond: [{ $gt: ["$minutosRetraso", 0] }, 1, 0] } },
+        tardanzas: {
+          $sum: { $cond: [{ $gt: ["$minutosRetraso", 0] }, 1, 0] },
+        },
         total_minutos_retraso: { $sum: "$minutosRetraso" },
       },
     },
   ]);
 
+  const registrosFormateados = registros.map((r) => ({
+    ...r,
+    fecha: tz.formatFecha(r.fecha),
+    horaMarcacion: tz.formatHora(r.horaMarcacion),
+  }));
+
   res.render("empleado/historial", {
-    registros,
+    registros: registrosFormateados,
     resumen: resumen[0] || { total_dias: 0, tardanzas: 0, total_minutos_retraso: 0 },
     page,
     totalPages,
   });
-}
-
-function usuarioId(id) {
-  const mongoose = require("mongoose");
-  return new mongoose.Types.ObjectId(id);
 }
 
 async function getConfigMap() {

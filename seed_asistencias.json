@@ -1,0 +1,602 @@
+[
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-08",
+    "horaMarcacion": "08:11:20",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 1,
+    "createdAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-08",
+    "horaMarcacion": "08:31:16",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-08",
+    "horaMarcacion": "08:12:11",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 7,
+    "createdAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-08",
+    "horaMarcacion": "08:18:52",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 8,
+    "createdAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-08T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-09",
+    "horaMarcacion": "08:14:13",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 4,
+    "createdAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-09",
+    "horaMarcacion": "08:32:28",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-09",
+    "horaMarcacion": "08:05:27",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-09",
+    "horaMarcacion": "08:06:31",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-09T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-10",
+    "horaMarcacion": "08:11:22",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 1,
+    "createdAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-10",
+    "horaMarcacion": "08:37:14",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-10",
+    "horaMarcacion": "08:03:33",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-10",
+    "horaMarcacion": "08:12:22",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 2,
+    "createdAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-10T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-11",
+    "horaMarcacion": "08:12:47",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 2,
+    "createdAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-11",
+    "horaMarcacion": "08:37:16",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-11",
+    "horaMarcacion": "08:11:38",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 6,
+    "createdAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-11",
+    "horaMarcacion": "08:16:15",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 6,
+    "createdAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-11T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-12",
+    "horaMarcacion": "08:06:40",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-12",
+    "horaMarcacion": "08:39:38",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-12",
+    "horaMarcacion": "08:22:26",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 17,
+    "createdAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-12",
+    "horaMarcacion": "08:01:19",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-12T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-15",
+    "horaMarcacion": "08:13:45",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 3,
+    "createdAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-15",
+    "horaMarcacion": "08:42:24",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-15",
+    "horaMarcacion": "08:12:33",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 7,
+    "createdAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-15",
+    "horaMarcacion": "08:12:37",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 2,
+    "createdAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-15T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-16",
+    "horaMarcacion": "08:03:47",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-16",
+    "horaMarcacion": "08:33:03",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-16",
+    "horaMarcacion": "08:11:21",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 6,
+    "createdAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-16",
+    "horaMarcacion": "08:14:33",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 4,
+    "createdAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-16T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-17",
+    "horaMarcacion": "08:07:51",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-17",
+    "horaMarcacion": "08:42:21",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-17",
+    "horaMarcacion": "08:14:39",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 9,
+    "createdAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-17",
+    "horaMarcacion": "08:14:06",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 4,
+    "createdAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-17T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-18",
+    "horaMarcacion": "08:08:22",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-18",
+    "horaMarcacion": "08:34:46",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-18",
+    "horaMarcacion": "08:12:12",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 7,
+    "createdAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-18",
+    "horaMarcacion": "08:12:07",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 2,
+    "createdAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-18T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "fecha": "2026-06-19",
+    "horaMarcacion": "08:02:46",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "fecha": "2026-06-19",
+    "horaMarcacion": "08:44:47",
+    "horaEsperada": "08:30",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "fecha": "2026-06-19",
+    "horaMarcacion": "08:04:53",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    }
+  },
+  {
+    "empleado": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "fecha": "2026-06-19",
+    "horaMarcacion": "08:06:04",
+    "horaEsperada": "08:00",
+    "minutosRetraso": 0,
+    "createdAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-19T18:35:23.234Z"
+    }
+  }
+]

@@ -79,6 +79,9 @@ async function seed(force = false) {
     { clave: "hora_inicio_general", valor: "08:00" },
     { clave: "tolerancia_general", valor: "10" },
     { clave: "descuento_por_minuto", valor: "0.50" },
+    { clave: "zona_horaria", valor: "America/Lima" },
+    { clave: "formato_fecha", valor: "YYYY-MM-DD" },
+    { clave: "formato_hora", valor: "HH:mm:ss" },
   ];
   await Configuracion.insertMany(defaultConfig);
 
