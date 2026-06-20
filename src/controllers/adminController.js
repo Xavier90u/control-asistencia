@@ -132,10 +132,12 @@ async function toggleEmpleado(req, res) {
 async function tardanzasView(req, res) {
   const { fecha_desde, fecha_hasta, empleado_id } = req.query;
   const filter = {};
+  const mongoose = require("mongoose");
 
   if (fecha_desde) filter.fecha = { $gte: fecha_desde };
   if (fecha_hasta) filter.fecha = { ...filter.fecha, $lte: fecha_hasta };
-  if (empleado_id) filter.empleado = empleado_id;
+  if (empleado_id && mongoose.Types.ObjectId.isValid(empleado_id))
+    filter.empleado = new mongoose.Types.ObjectId(empleado_id);
 
   const registros = await Asistencia.find(filter)
     .populate("empleado", "nombre email horaInicio toleranciaMinutos descuentoPorMinuto")
@@ -162,10 +164,13 @@ async function tardanzasView(req, res) {
     };
   });
 
-  const empleados = await Usuario.find({ rol: "empleado", activo: true })
+  const empleados = (await Usuario.find({ rol: "empleado", activo: true })
     .select("nombre")
     .sort({ nombre: 1 })
-    .lean();
+    .lean()).map((e) => ({
+      ...e,
+      id: e._id.toString(),
+    }));
 
   res.render("admin/tardanzas", {
     registros: registrosConDescuento,

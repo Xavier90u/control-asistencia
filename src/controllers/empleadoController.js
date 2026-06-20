@@ -3,7 +3,8 @@ const Asistencia = require("../models/Asistencia");
 const Configuracion = require("../models/Configuracion");
 
 async function marcacionView(req, res) {
-  const userId = req.session.user.id;
+  const mongoose = require("mongoose");
+  const userId = new mongoose.Types.ObjectId(req.session.user.id);
   const doc = await Usuario.findById(userId).lean();
   const empleado = {
     ...doc,
@@ -27,12 +28,16 @@ async function marcacionView(req, res) {
     asistenciaHoy,
     config,
     horaActual: hoy.toLocaleTimeString("es-PE", { hour12: false }),
+    retraso: req.query.retraso,
   });
 }
 
 async function marcar(req, res) {
+  const mongoose = require("mongoose");
   const userId = req.session.user.id;
-  const empleado = await Usuario.findById(userId).lean();
+  const empleadoId = new mongoose.Types.ObjectId(userId);
+
+  const empleado = await Usuario.findById(empleadoId).lean();
   if (!empleado) return res.redirect("/empleado?error=Empleado no encontrado");
 
   const hoy = new Date();
@@ -40,7 +45,7 @@ async function marcar(req, res) {
   const horaStr = hoy.toLocaleTimeString("es-PE", { hour12: false });
 
   const existing = await Asistencia.findOne({
-    empleado: userId,
+    empleado: empleadoId,
     fecha: fechaStr,
   });
   if (existing) return res.redirect("/empleado?error=Ya marcaste entrada hoy");
@@ -61,7 +66,7 @@ async function marcar(req, res) {
   const minutosRetraso = Math.max(0, minutosActuales - minutosEsperados);
 
   await Asistencia.create({
-    empleado: userId,
+    empleado: empleadoId,
     fecha: fechaStr,
     horaMarcacion: horaStr,
     horaEsperada: horaInicio,
