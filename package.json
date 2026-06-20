@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-mongo": "^6.0.0",
     "dotenv": "^17.4.2",
     "ejs": "^3.1.10",
     "express": "^4.21.0",
+    "express-async-errors": "^3.1.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.18.1",
-    "sql.js": "^1.11.0"
+    "mongoose": "^9.7.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",

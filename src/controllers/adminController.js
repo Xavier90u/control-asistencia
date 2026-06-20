@@ -1,204 +1,210 @@
 const bcrypt = require("bcryptjs");
-const db = require("../models/db");
+const Usuario = require("../models/Usuario");
+const Asistencia = require("../models/Asistencia");
+const Configuracion = require("../models/Configuracion");
 
-function dashboard(req, res) {
-  const totalEmpleados = db.get(
-    "SELECT COUNT(*) as total FROM usuarios WHERE rol = 'empleado' AND activo = 1"
-  );
-  const asistenciasHoy = db.get(
-    "SELECT COUNT(*) as total FROM asistencia WHERE fecha = date('now', 'localtime')"
-  );
-  const tardanzasHoy = db.get(
-    "SELECT COUNT(*) as total FROM asistencia WHERE fecha = date('now', 'localtime') AND minutos_retraso > 0"
-  );
-  const config = getConfigMap();
+async function dashboard(req, res) {
+  const totalEmpleados = await Usuario.countDocuments({
+    rol: "empleado",
+    activo: true,
+  });
+  const hoy = new Date().toISOString().split("T")[0];
+  const asistenciasHoy = await Asistencia.countDocuments({ fecha: hoy });
+  const tardanzasHoy = await Asistencia.countDocuments({
+    fecha: hoy,
+    minutosRetraso: { $gt: 0 },
+  });
+  const config = await getConfigMap();
 
   res.render("admin/dashboard", {
-    totalEmpleados: totalEmpleados.total,
-    asistenciasHoy: asistenciasHoy.total,
-    tardanzasHoy: tardanzasHoy.total,
+    totalEmpleados,
+    asistenciasHoy,
+    tardanzasHoy,
     config,
   });
 }
 
-function listEmpleados(req, res) {
-  const empleados = db.query(`
-    SELECT u.id, u.nombre, u.email, u.activo, u.created_at,
-           e.hora_inicio, e.tolerancia_minutos, e.descuento_por_minuto
-    FROM usuarios u
-    LEFT JOIN empleados e ON e.usuario_id = u.id
-    WHERE u.rol = 'empleado'
-    ORDER BY u.activo DESC, u.nombre ASC
-  `);
+async function listEmpleados(req, res) {
+  const docs = await Usuario.find({ rol: "empleado" })
+    .select("nombre email activo horaInicio toleranciaMinutos descuentoPorMinuto createdAt")
+    .sort({ activo: -1, nombre: 1 })
+    .lean();
+  const empleados = docs.map((e) => ({
+    ...e,
+    hora_inicio: e.horaInicio,
+    tolerancia_minutos: e.toleranciaMinutos,
+    descuento_por_minuto: e.descuentoPorMinuto,
+  }));
   res.render("admin/empleados", { empleados });
 }
 
-function createEmpleado(req, res) {
-  const { nombre, email, password, hora_inicio, tolerancia_minutos, descuento_por_minuto } = req.body;
+async function createEmpleado(req, res) {
+  const {
+    nombre,
+    email,
+    password,
+    hora_inicio,
+    tolerancia_minutos,
+    descuento_por_minuto,
+  } = req.body;
   if (!nombre || !email || !password)
     return res.redirect("/admin/empleados?error=Completa todos los campos");
 
-  const existing = db.get("SELECT id FROM usuarios WHERE email = ?", [email]);
+  const existing = await Usuario.findOne({ email });
   if (existing)
     return res.redirect("/admin/empleados?error=El email ya existe");
 
   const hashed = bcrypt.hashSync(password, 10);
-  db.run(
-    "INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, 'empleado')",
-    [nombre, email, hashed]
-  );
-  const usuario = db.get("SELECT id FROM usuarios WHERE email = ?", [email]);
-  db.run(
-    "INSERT INTO empleados (usuario_id, hora_inicio, tolerancia_minutos, descuento_por_minuto) VALUES (?, ?, ?, ?)",
-    [
-      usuario.id,
-      hora_inicio || null,
-      tolerancia_minutos ? parseInt(tolerancia_minutos) : null,
-      descuento_por_minuto ? parseFloat(descuento_por_minuto) : null,
-    ]
-  );
+  await Usuario.create({
+    nombre,
+    email,
+    password: hashed,
+    rol: "empleado",
+    horaInicio: hora_inicio || undefined,
+    toleranciaMinutos: tolerancia_minutos ? parseInt(tolerancia_minutos) : undefined,
+    descuentoPorMinuto: descuento_por_minuto
+      ? parseFloat(descuento_por_minuto)
+      : undefined,
+  });
   res.redirect("/admin/empleados?success=Empleado creado exitosamente");
 }
 
-function editEmpleadoForm(req, res) {
-  const empleado = db.get(
-    `SELECT u.id, u.nombre, u.email, u.activo,
-            e.hora_inicio, e.tolerancia_minutos, e.descuento_por_minuto
-     FROM usuarios u
-     LEFT JOIN empleados e ON e.usuario_id = u.id
-     WHERE u.id = ? AND u.rol = 'empleado'`,
-    [req.params.id]
-  );
-  if (!empleado) return res.redirect("/admin/empleados?error=Empleado no encontrado");
+async function editEmpleadoForm(req, res) {
+  const doc = await Usuario.findOne({
+    _id: req.params.id,
+    rol: "empleado",
+  }).lean();
+  if (!doc)
+    return res.redirect("/admin/empleados?error=Empleado no encontrado");
+  const empleado = {
+    ...doc,
+    hora_inicio: doc.horaInicio,
+    tolerancia_minutos: doc.toleranciaMinutos,
+    descuento_por_minuto: doc.descuentoPorMinuto,
+  };
   res.render("admin/editar_empleado", { empleado });
 }
 
-function updateEmpleado(req, res) {
-  const { nombre, email, password, hora_inicio, tolerancia_minutos, descuento_por_minuto } = req.body;
+async function updateEmpleado(req, res) {
+  const {
+    nombre,
+    email,
+    password,
+    hora_inicio,
+    tolerancia_minutos,
+    descuento_por_minuto,
+  } = req.body;
   const userId = req.params.id;
 
-  const user = db.get("SELECT id FROM usuarios WHERE id = ?", [userId]);
-  if (!user) return res.redirect("/admin/empleados?error=Empleado no encontrado");
+  const update = {
+    nombre,
+    email,
+    horaInicio: hora_inicio || undefined,
+    toleranciaMinutos: tolerancia_minutos
+      ? parseInt(tolerancia_minutos)
+      : undefined,
+    descuentoPorMinuto: descuento_por_minuto
+      ? parseFloat(descuento_por_minuto)
+      : undefined,
+  };
 
   if (password && password.trim()) {
-    const hashed = bcrypt.hashSync(password, 10);
-    db.run("UPDATE usuarios SET nombre = ?, email = ?, password = ? WHERE id = ?", [
-      nombre,
-      email,
-      hashed,
-      userId,
-    ]);
-  } else {
-    db.run("UPDATE usuarios SET nombre = ?, email = ? WHERE id = ?", [
-      nombre,
-      email,
-      userId,
-    ]);
+    update.password = bcrypt.hashSync(password, 10);
   }
 
-  db.run(
-    `UPDATE empleados SET hora_inicio = ?, tolerancia_minutos = ?, descuento_por_minuto = ? WHERE usuario_id = ?`,
-    [
-      hora_inicio || null,
-      tolerancia_minutos ? parseInt(tolerancia_minutos) : null,
-      descuento_por_minuto ? parseFloat(descuento_por_minuto) : null,
-      userId,
-    ]
-  );
+  const result = await Usuario.updateOne({ _id: userId, rol: "empleado" }, update);
+  if (!result.matchedCount)
+    return res.redirect("/admin/empleados?error=Empleado no encontrado");
   res.redirect("/admin/empleados?success=Empleado actualizado");
 }
 
-function toggleEmpleado(req, res) {
-  const user = db.get("SELECT id, activo FROM usuarios WHERE id = ?", [
-    req.params.id,
-  ]);
-  if (!user) return res.redirect("/admin/empleados?error=Empleado no encontrado");
-  db.run("UPDATE usuarios SET activo = ? WHERE id = ?", [
-    user.activo ? 0 : 1,
-    user.id,
-  ]);
+async function toggleEmpleado(req, res) {
+  const user = await Usuario.findById(req.params.id);
+  if (!user)
+    return res.redirect("/admin/empleados?error=Empleado no encontrado");
+  user.activo = !user.activo;
+  await user.save();
   res.redirect("/admin/empleados?success=Estado actualizado");
 }
 
-function tardanzasView(req, res) {
+async function tardanzasView(req, res) {
   const { fecha_desde, fecha_hasta, empleado_id } = req.query;
-  let sql = `
-    SELECT a.id, a.fecha, a.hora_marcacion, a.hora_esperada, a.minutos_retraso,
-           u.nombre as empleado_nombre, u.email as empleado_email,
-           COALESCE(e.descuento_por_minuto, CAST(cg.valor AS REAL), 0.5) as descuento_x_minuto,
-           a.minutos_retraso * COALESCE(e.descuento_por_minuto, CAST(cg.valor AS REAL), 0.5) as descuento_total
-    FROM asistencia a
-    JOIN empleados emp ON emp.id = a.empleado_id
-    JOIN usuarios u ON u.id = emp.usuario_id
-    LEFT JOIN configuracion cg ON cg.clave = 'descuento_por_minuto'
-    LEFT JOIN empleados e ON e.usuario_id = u.id
-    WHERE 1=1
-  `;
-  const params = [];
+  const filter = {};
 
-  if (fecha_desde) {
-    sql += " AND a.fecha >= ?";
-    params.push(fecha_desde);
-  }
-  if (fecha_hasta) {
-    sql += " AND a.fecha <= ?";
-    params.push(fecha_hasta);
-  }
-  if (empleado_id) {
-    sql += " AND emp.usuario_id = ?";
-    params.push(empleado_id);
-  }
+  if (fecha_desde) filter.fecha = { $gte: fecha_desde };
+  if (fecha_hasta) filter.fecha = { ...filter.fecha, $lte: fecha_hasta };
+  if (empleado_id) filter.empleado = empleado_id;
 
-  sql += " ORDER BY a.fecha DESC, a.hora_marcacion DESC";
+  const registros = await Asistencia.find(filter)
+    .populate("empleado", "nombre email horaInicio toleranciaMinutos descuentoPorMinuto")
+    .sort({ fecha: -1, horaMarcacion: -1 })
+    .lean();
 
-  const registros = db.query(sql, params);
-  const empleados = db.query(
-    "SELECT u.id, u.nombre FROM usuarios u WHERE u.rol = 'empleado' AND u.activo = 1 ORDER BY u.nombre"
-  );
+  const config = await getConfigMap();
+  const descuentoGeneral = parseFloat(config.descuento_por_minuto || "0.50");
 
-  res.render("admin/tardanzas", { registros, empleados, filtros: req.query });
+  const registrosConDescuento = registros.map((r) => {
+    const dtoXMinuto =
+      r.empleado?.descuentoPorMinuto ?? descuentoGeneral;
+    const descuentoTotal = Math.max(0, (r.minutosRetraso || 0) * dtoXMinuto);
+    return {
+      id: r._id,
+      fecha: r.fecha,
+      hora_marcacion: r.horaMarcacion,
+      hora_esperada: r.horaEsperada,
+      minutos_retraso: r.minutosRetraso,
+      empleado_nombre: r.empleado?.nombre || "—",
+      empleado_email: r.empleado?.email || "—",
+      descuento_x_minuto: dtoXMinuto,
+      descuento_total: descuentoTotal,
+    };
+  });
+
+  const empleados = await Usuario.find({ rol: "empleado", activo: true })
+    .select("nombre")
+    .sort({ nombre: 1 })
+    .lean();
+
+  res.render("admin/tardanzas", {
+    registros: registrosConDescuento,
+    empleados,
+    filtros: req.query,
+  });
 }
 
-function configView(req, res) {
-  const configs = db.query("SELECT * FROM configuracion ORDER BY id");
-  const configMap = {};
-  configs.forEach((c) => (configMap[c.clave] = c.valor));
-  res.render("admin/config", { config: configMap });
+async function configView(req, res) {
+  const config = await getConfigMap();
+  res.render("admin/config", { config });
 }
 
-function updateConfig(req, res) {
+async function updateConfig(req, res) {
   const { hora_inicio_general, tolerancia_general, descuento_por_minuto } =
     req.body;
 
-  if (hora_inicio_general)
-    db.run(
-      "UPDATE configuracion SET valor = ? WHERE clave = 'hora_inicio_general'",
-      [hora_inicio_general]
-    );
-  if (tolerancia_general)
-    db.run(
-      "UPDATE configuracion SET valor = ? WHERE clave = 'tolerancia_general'",
-      [tolerancia_general]
-    );
-  if (descuento_por_minuto)
-    db.run(
-      "UPDATE configuracion SET valor = ? WHERE clave = 'descuento_por_minuto'",
-      [descuento_por_minuto]
-    );
+  const updates = [
+    { clave: "hora_inicio_general", valor: hora_inicio_general },
+    { clave: "tolerancia_general", valor: tolerancia_general },
+    { clave: "descuento_por_minuto", valor: descuento_por_minuto },
+  ];
 
+  for (const u of updates) {
+    if (u.valor)
+      await Configuracion.updateOne(
+        { clave: u.clave },
+        { $set: { valor: u.valor } }
+      );
+  }
   res.redirect("/admin/config?success=Configuración actualizada");
 }
 
 async function seedData(req, res) {
   const { seed } = require("../../seed");
   const result = await seed(true);
-  res.redirect(
-    `/admin?success=${encodeURIComponent(result.message)}`
-  );
+  res.redirect(`/admin?success=${encodeURIComponent(result.message)}`);
 }
 
-function getConfigMap() {
-  const configs = db.query("SELECT * FROM configuracion");
+async function getConfigMap() {
+  const configs = await Configuracion.find().lean();
   const map = {};
   configs.forEach((c) => (map[c.clave] = c.valor));
   return map;

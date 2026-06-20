@@ -1,21 +1,26 @@
-const db = require("../models/db");
+const Usuario = require("../models/Usuario");
+const Asistencia = require("../models/Asistencia");
+const Configuracion = require("../models/Configuracion");
 
-function marcacionView(req, res) {
+async function marcacionView(req, res) {
   const userId = req.session.user.id;
-  const empleado = db.get(
-    "SELECT e.* FROM empleados e WHERE e.usuario_id = ?",
-    [userId]
-  );
+  const doc = await Usuario.findById(userId).lean();
+  const empleado = {
+    ...doc,
+    hora_inicio: doc.horaInicio,
+    tolerancia_minutos: doc.toleranciaMinutos,
+    descuento_por_minuto: doc.descuentoPorMinuto,
+  };
 
   const hoy = new Date();
   const fechaStr = hoy.toISOString().split("T")[0];
 
-  const asistenciaHoy = db.get(
-    "SELECT * FROM asistencia WHERE empleado_id = ? AND fecha = ?",
-    [empleado.id, fechaStr]
-  );
+  const asistenciaHoy = await Asistencia.findOne({
+    empleado: userId,
+    fecha: fechaStr,
+  }).lean();
 
-  const config = getConfigMap();
+  const config = await getConfigMap();
 
   res.render("empleado/marcacion", {
     empleado,
@@ -25,32 +30,28 @@ function marcacionView(req, res) {
   });
 }
 
-function marcar(req, res) {
+async function marcar(req, res) {
   const userId = req.session.user.id;
-  const empleado = db.get(
-    "SELECT e.* FROM empleados e WHERE e.usuario_id = ?",
-    [userId]
-  );
-
+  const empleado = await Usuario.findById(userId).lean();
   if (!empleado) return res.redirect("/empleado?error=Empleado no encontrado");
 
   const hoy = new Date();
   const fechaStr = hoy.toISOString().split("T")[0];
   const horaStr = hoy.toLocaleTimeString("es-PE", { hour12: false });
 
-  const existing = db.get(
-    "SELECT id FROM asistencia WHERE empleado_id = ? AND fecha = ?",
-    [empleado.id, fechaStr]
-  );
-  if (existing)
-    return res.redirect("/empleado?error=Ya marcaste entrada hoy");
+  const existing = await Asistencia.findOne({
+    empleado: userId,
+    fecha: fechaStr,
+  });
+  if (existing) return res.redirect("/empleado?error=Ya marcaste entrada hoy");
 
-  const config = getConfigMap();
+  const config = await getConfigMap();
 
-  const horaInicio = empleado.hora_inicio || config.hora_inicio_general || "08:00";
-  const tolerancia = empleado.tolerancia_minutos !== null
-    ? empleado.tolerancia_minutos
-    : parseInt(config.tolerancia_general || "10");
+  const horaInicio =
+    empleado.horaInicio || config.hora_inicio_general || "08:00";
+  const tolerancia =
+    empleado.toleranciaMinutos ??
+    parseInt(config.tolerancia_general || "10");
 
   const [horaEsperadaH, minEsperadoM] = horaInicio.split(":").map(Number);
   const [horaActualH, minActualM] = horaStr.split(":").map(Number);
@@ -59,61 +60,64 @@ function marcar(req, res) {
   const minutosActuales = horaActualH * 60 + minActualM;
   const minutosRetraso = Math.max(0, minutosActuales - minutosEsperados);
 
-  db.run(
-    `INSERT INTO asistencia (empleado_id, fecha, hora_marcacion, hora_esperada, minutos_retraso) VALUES (?, ?, ?, ?, ?)`,
-    [empleado.id, fechaStr, horaStr, horaInicio, minutosRetraso]
-  );
+  await Asistencia.create({
+    empleado: userId,
+    fecha: fechaStr,
+    horaMarcacion: horaStr,
+    horaEsperada: horaInicio,
+    minutosRetraso,
+  });
 
   if (minutosRetraso > 0) {
-    res.redirect(
-      `/empleado?success=Entrada registrada&retraso=${minutosRetraso}`
-    );
+    res.redirect(`/empleado?success=Entrada registrada&retraso=${minutosRetraso}`);
   } else {
     res.redirect("/empleado?success=Entrada registrada a tiempo");
   }
 }
 
-function historialView(req, res) {
+async function historialView(req, res) {
   const userId = req.session.user.id;
-  const empleado = db.get(
-    "SELECT e.* FROM empleados e WHERE e.usuario_id = ?",
-    [userId]
-  );
 
   const page = parseInt(req.query.page) || 1;
   const limit = 15;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  const total = db.get(
-    "SELECT COUNT(*) as count FROM asistencia WHERE empleado_id = ?",
-    [empleado.id]
-  );
-  const totalPages = Math.ceil(total.count / limit);
+  const total = await Asistencia.countDocuments({ empleado: userId });
+  const totalPages = Math.ceil(total / limit);
 
-  const registros = db.query(
-    "SELECT * FROM asistencia WHERE empleado_id = ? ORDER BY fecha DESC, id DESC LIMIT ? OFFSET ?",
-    [empleado.id, limit, offset]
-  );
+  const registros = await Asistencia.find({ empleado: userId })
+    .sort({ fecha: -1, _id: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
 
-  const resumen = db.get(
-    `SELECT 
-      COUNT(*) as total_dias,
-      SUM(CASE WHEN minutos_retraso > 0 THEN 1 ELSE 0 END) as tardanzas,
-      SUM(minutos_retraso) as total_minutos_retraso
-     FROM asistencia WHERE empleado_id = ?`,
-    [empleado.id]
-  );
+  const resumen = await Asistencia.aggregate([
+    { $match: { empleado: usuarioId(userId) } },
+    {
+      $group: {
+        _id: null,
+        total_dias: { $sum: 1 },
+        tardanzas: { $sum: { $cond: [{ $gt: ["$minutosRetraso", 0] }, 1, 0] } },
+        total_minutos_retraso: { $sum: "$minutosRetraso" },
+      },
+    },
+  ]);
 
   res.render("empleado/historial", {
     registros,
-    resumen,
+    resumen: resumen[0] || { total_dias: 0, tardanzas: 0, total_minutos_retraso: 0 },
     page,
     totalPages,
   });
 }
 
-function getConfigMap() {
-  const configs = db.query("SELECT * FROM configuracion");
+function usuarioId(id) {
+  const mongoose = require("mongoose");
+  return new mongoose.Types.ObjectId(id);
+}
+
+async function getConfigMap() {
+  const configs = await Configuracion.find().lean();
   const map = {};
   configs.forEach((c) => (map[c.clave] = c.valor));
   return map;

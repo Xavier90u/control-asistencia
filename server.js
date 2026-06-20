@@ -1,12 +1,16 @@
+require("express-async-errors");
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
+const mongoose = require("mongoose");
+const { MongoStore } = require("connect-mongo");
 require("dotenv").config();
-const { initDB, SQLiteSessionStore } = require("./src/models/db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://localhost:27017/control-asistencia";
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -17,7 +21,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 8 * 60 * 60 * 1000 },
-    store: new SQLiteSessionStore(),
+    store: MongoStore.create({ mongoUrl: MONGO_URI }),
   })
 );
 
@@ -43,7 +47,13 @@ app.get("/", (req, res) => {
 });
 
 async function start() {
-  await initDB();
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("Conectado a MongoDB");
+  } catch (e) {
+    console.error("Error conectando a MongoDB:", e.message);
+    process.exit(1);
+  }
   app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
   });

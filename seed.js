@@ -1,92 +1,92 @@
-const { initDB, run, query, get } = require("./src/models/db");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const Usuario = require("./src/models/Usuario");
+const Asistencia = require("./src/models/Asistencia");
+const Configuracion = require("./src/models/Configuracion");
+
+require("dotenv").config();
+
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://localhost:27017/control-asistencia";
 
 async function seed(force = false) {
-  await initDB();
+  await mongoose.connect(MONGO_URI);
 
-  const adminExists = get("SELECT id FROM usuarios WHERE email = ?", [
-    "admin@empresa.com",
-  ]);
+  const adminExists = await Usuario.findOne({ email: "admin@empresa.com" });
   if (adminExists && !force) {
     console.log(
-      "La base de datos ya tiene datos. Usa 'node seed.js --force' para regenerar."
+      "La BD ya tiene datos. Usa 'node seed.js --force' para regenerar."
     );
+    await mongoose.disconnect();
     return { created: false };
   }
 
   if (force && adminExists) {
-    run("DELETE FROM asistencia");
-    run("DELETE FROM empleados");
-    run("DELETE FROM usuarios");
-    run("DELETE FROM sessions");
-    run("DELETE FROM configuracion");
+    await Asistencia.deleteMany({});
+    await Usuario.deleteMany({});
+    await Configuracion.deleteMany({});
   }
 
   const adminPass = bcrypt.hashSync("admin123", 10);
-  run(
-    "INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, 'admin')",
-    ["Administrador", "admin@empresa.com", adminPass]
-  );
+  await Usuario.create({
+    nombre: "Administrador",
+    email: "admin@empresa.com",
+    password: adminPass,
+    rol: "admin",
+  });
 
   const empleadosData = [
     {
       nombre: "Carlos López",
       email: "carlos@empresa.com",
       password: "123456",
-      hora_inicio: null,
-      tolerancia_minutos: null,
-      descuento_por_minuto: null,
+      horaInicio: undefined,
+      toleranciaMinutos: undefined,
+      descuentoPorMinuto: undefined,
     },
     {
       nombre: "María García",
       email: "maria@empresa.com",
       password: "123456",
-      hora_inicio: "08:30",
-      tolerancia_minutos: 15,
-      descuento_por_minuto: null,
+      horaInicio: "08:30",
+      toleranciaMinutos: 15,
+      descuentoPorMinuto: undefined,
     },
     {
       nombre: "Juan Pérez",
       email: "juan@empresa.com",
       password: "123456",
-      hora_inicio: null,
-      tolerancia_minutos: 5,
-      descuento_por_minuto: 0.75,
+      horaInicio: undefined,
+      toleranciaMinutos: 5,
+      descuentoPorMinuto: 0.75,
     },
     {
       nombre: "Ana Torres",
       email: "ana@empresa.com",
       password: "123456",
-      hora_inicio: null,
-      tolerancia_minutos: null,
-      descuento_por_minuto: null,
+      horaInicio: undefined,
+      toleranciaMinutos: undefined,
+      descuentoPorMinuto: undefined,
     },
   ];
 
   for (const emp of empleadosData) {
     const pass = bcrypt.hashSync(emp.password, 10);
-    run(
-      "INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, 'empleado')",
-      [emp.nombre, emp.email, pass]
-    );
-    const user = get("SELECT id FROM usuarios WHERE email = ?", [emp.email]);
-    run(
-      "INSERT INTO empleados (usuario_id, hora_inicio, tolerancia_minutos, descuento_por_minuto) VALUES (?, ?, ?, ?)",
-      [
-        user.id,
-        emp.hora_inicio,
-        emp.tolerancia_minutos,
-        emp.descuento_por_minuto,
-      ]
-    );
+    await Usuario.create({ ...emp, password: pass, rol: "empleado" });
   }
 
-  const empleadosDb = query(
-    "SELECT e.id, u.nombre FROM empleados e JOIN usuarios u ON u.id = e.usuario_id"
-  );
+  const defaultConfig = [
+    { clave: "hora_inicio_general", valor: "08:00" },
+    { clave: "tolerancia_general", valor: "10" },
+    { clave: "descuento_por_minuto", valor: "0.50" },
+  ];
+  await Configuracion.insertMany(defaultConfig);
+
+  const empleados = await Usuario.find({ rol: "empleado" });
   const hoy = new Date();
+
   for (let i = 14; i >= 0; i--) {
-    for (const emp of empleadosDb) {
+    for (const emp of empleados) {
       const fecha = new Date(hoy);
       fecha.setDate(fecha.getDate() - i);
       if (fecha.getDay() === 0 || fecha.getDay() === 6) continue;
@@ -101,16 +101,33 @@ async function seed(force = false) {
       const min = String(horaMinutos % 60).padStart(2, "0");
       const seg = String(Math.floor(Math.random() * 60)).padStart(2, "0");
 
-      run(
-        "INSERT OR IGNORE INTO asistencia (empleado_id, fecha, hora_marcacion, hora_esperada, minutos_retraso) VALUES (?, ?, ?, ?, ?)",
-        [emp.id, fechaStr, `${hora}:${min}:${seg}`, "08:00", retraso]
-      );
+      try {
+        await Asistencia.create({
+          empleado: emp._id,
+          fecha: fechaStr,
+          horaMarcacion: `${hora}:${min}:${seg}`,
+          horaEsperada: "08:00",
+          minutosRetraso: retraso,
+        });
+      } catch (e) {
+        // ignore duplicate
+      }
     }
   }
 
-  const msg = "Base de datos creada con datos demo (14 días).";
-  console.log("✅ " + msg);
-  return { created: true, message: msg };
+  const mensaje = "Base de datos creada con datos demo (14 días).";
+  console.log("✅ " + mensaje);
+
+  console.log("");
+  console.log("Credenciales:");
+  console.log("  Admin:     admin@empresa.com / admin123");
+  console.log("  Empleados: carlos@empresa.com / 123456");
+  console.log("             maria@empresa.com  / 123456");
+  console.log("             juan@empresa.com   / 123456");
+  console.log("             ana@empresa.com    / 123456");
+
+  await mongoose.disconnect();
+  return { created: true, message: mensaje };
 }
 
 const force = process.argv.includes("--force");
