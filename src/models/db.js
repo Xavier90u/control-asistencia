@@ -85,6 +85,10 @@ function insertDefaults() {
 }
 
 function save() {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   const data = db.export();
   fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
