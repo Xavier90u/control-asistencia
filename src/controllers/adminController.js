@@ -31,6 +31,7 @@ async function listEmpleados(req, res) {
     .lean();
   const empleados = docs.map((e) => ({
     ...e,
+    id: e._id.toString(),
     hora_inicio: e.horaInicio,
     tolerancia_minutos: e.toleranciaMinutos,
     descuento_por_minuto: e.descuentoPorMinuto,
@@ -78,6 +79,7 @@ async function editEmpleadoForm(req, res) {
     return res.redirect("/admin/empleados?error=Empleado no encontrado");
   const empleado = {
     ...doc,
+    id: doc._id.toString(),
     hora_inicio: doc.horaInicio,
     tolerancia_minutos: doc.toleranciaMinutos,
     descuento_por_minuto: doc.descuentoPorMinuto,
@@ -188,10 +190,11 @@ async function updateConfig(req, res) {
   ];
 
   for (const u of updates) {
-    if (u.valor)
+    if (u.valor !== undefined && u.valor !== null)
       await Configuracion.updateOne(
         { clave: u.clave },
-        { $set: { valor: u.valor } }
+        { $set: { valor: u.valor } },
+        { upsert: true }
       );
   }
   res.redirect("/admin/config?success=Configuración actualizada");
