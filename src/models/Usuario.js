@@ -7,6 +7,7 @@ const usuarioSchema = new mongoose.Schema(
     password: { type: String, required: true },
     rol: { type: String, enum: ["admin", "empleado"], required: true },
     activo: { type: Boolean, default: true },
+    area: { type: mongoose.Schema.Types.ObjectId, ref: "Area" },
     horaInicio: String,
     toleranciaMinutos: Number,
     descuentoPorMinuto: Number,

@@ -2,21 +2,10 @@ const { Router } = require("express");
 const router = Router();
 const { requireAdmin } = require("../middleware/auth");
 const {
-  dashboard,
-  listEmpleados,
-  createEmpleado,
-  editEmpleadoForm,
-  updateEmpleado,
-  toggleEmpleado,
-  tardanzasView,
-  configView,
-  updateConfig,
-  seedData,
-  horariosView,
-  updateHorarioSemanal,
-  deleteHorarioSemanal,
-  createHorarioEspecifico,
-  deleteHorarioEspecifico,
+  dashboard, listEmpleados, createEmpleado, editEmpleadoForm, updateEmpleado, toggleEmpleado,
+  tardanzasView, configView, updateConfig, seedData,
+  areasView, createArea, editAreaForm, updateArea, deleteArea,
+  horariosView, updateHorarios,
 } = require("../controllers/adminController");
 
 router.use(requireAdmin);
@@ -32,11 +21,15 @@ router.get("/config", configView);
 router.post("/config", updateConfig);
 router.post("/seed", seedData);
 
+// Areas
+router.get("/areas", areasView);
+router.post("/areas", createArea);
+router.get("/areas/:id/editar", editAreaForm);
+router.post("/areas/:id", updateArea);
+router.post("/areas/:id/delete", deleteArea);
+
 // Horarios
 router.get("/horarios", horariosView);
-router.post("/horarios/semanal", updateHorarioSemanal);
-router.post("/horarios/semanal/:empleado_id/:dia_semana/delete", deleteHorarioSemanal);
-router.post("/horarios/especifico", createHorarioEspecifico);
-router.post("/horarios/especifico/:horario_id/delete", deleteHorarioEspecifico);
+router.post("/horarios", updateHorarios);
 
 module.exports = router;

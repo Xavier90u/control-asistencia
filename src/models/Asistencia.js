@@ -12,6 +12,9 @@ const asistenciaSchema = new mongoose.Schema(
     horaEsperada: { type: String, required: true },
     minutosRetraso: { type: Number, default: 0 },
     turnoIndex: { type: Number, default: 0 },
+    franja: { type: String },
+    latitud: { type: Number },
+    longitud: { type: Number },
   },
   { timestamps: true }
 );

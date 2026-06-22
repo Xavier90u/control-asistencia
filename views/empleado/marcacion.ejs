@@ -5,83 +5,79 @@
     <p class="text-gray-500">Bienvenido, <%= user.nombre %></p>
   </div>
 
-  <div class="bg-white rounded-xl shadow-md p-8 text-center">
+  <div class="bg-white rounded-xl shadow-md p-6">
     <% if (todosMarcados) { %>
       <div class="text-center">
         <div class="text-6xl mb-4">✅</div>
         <h2 class="text-xl font-bold text-green-600 mb-4">Todos los turnos registrados hoy</h2>
-        <% turnos.forEach(function(t) { %>
-          <div class="bg-green-50 rounded-lg p-3 mb-2 text-left">
-            <div class="flex justify-between items-center">
-              <span class="font-medium text-gray-700">Turno <%= t.index + 1 %>: <%= t.horaInicio %></span>
-              <span class="text-green-600 text-sm font-medium">✅ <%= t.asistencia ? t.asistencia.horaMarcacion : '' %></span>
-            </div>
+        <% franjas.forEach(function(f) { %>
+          <div class="bg-green-50 rounded-lg p-3 mb-2 text-left flex justify-between items-center">
+            <span class="font-medium text-gray-700"><%= f.franja %></span>
+            <span class="text-green-600 text-sm font-medium">✅ Marcado</span>
           </div>
         <% }); %>
         <p class="text-gray-400 text-sm mt-4">Completaste todos tus turnos hoy. Vuelve mañana.</p>
       </div>
-    <% } else if (turnos.length > 0 && turnos[0].marcado) { %>
-      <div class="text-center">
-        <div class="text-6xl mb-4">⏰</div>
-        <h2 class="text-xl font-bold text-amber-600 mb-4">Turnos de hoy</h2>
-
-        <% turnos.forEach(function(t) { %>
-          <div class="<%= t.marcado ? 'bg-green-50' : 'bg-gray-50 border-2 border-blue-200' %> rounded-lg p-3 mb-2 text-left">
-            <div class="flex justify-between items-center">
-              <span class="font-medium text-gray-700">Turno <%= t.index + 1 %>: <%= t.horaInicio %></span>
-              <% if (t.marcado) { %>
-                <span class="text-green-600 text-sm font-medium">✅ <%= t.asistencia.horaMarcacion %></span>
-              <% } else { %>
-                <span class="text-blue-600 text-sm font-medium">⏳ Pendiente</span>
-              <% } %>
-            </div>
-          </div>
-        <% }); %>
-
-        <form action="/empleado/marcar" method="POST" class="mt-4">
-          <button type="submit" id="btnMarcar"
-            class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg transition duration-200 shadow-lg hover:shadow-xl">
-            MARCAR SIGUIENTE TURNO
-          </button>
-        </form>
+    <% } else if (franjas.length === 0) { %>
+      <div class="text-center py-8">
+        <div class="text-5xl mb-3">📅</div>
+        <p class="text-gray-500">No tienes turnos asignados para hoy.</p>
+        <p class="text-gray-400 text-sm mt-2">Consulta con el administrador si crees que es un error.</p>
       </div>
     <% } else { %>
-      <div class="mb-6">
-        <div class="text-6xl mb-2">⏰</div>
-        <div class="text-3xl font-bold text-gray-800 mb-1" id="reloj"><%= horaActual %></div>
-        <p class="text-gray-500 text-sm" id="fecha"></p>
+      <div class="mb-4">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-gray-800 mb-1" id="reloj"></div>
+          <p class="text-gray-500 text-sm" id="fecha"></p>
+        </div>
       </div>
 
-      <!-- Mostrar horario de hoy -->
-      <div class="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-left space-y-2">
-        <p class="font-medium text-gray-700 mb-1">Horario de hoy:</p>
-        <% if (turnos.length > 0) { %>
-          <% turnos.forEach(function(t, i) { %>
-            <p><span class="text-gray-600">Turno <%= i + 1 %>:</span> <strong><%= t.horaInicio %></strong>
-            <span class="text-gray-400">(tol: <%= t.tolerancia %> min, S/ <%= t.descuentoPorMinuto.toFixed(2) %>/min)</span></p>
-          <% }); %>
-        <% } else { %>
-          <p><span class="text-gray-600">Hora esperada:</span> <strong><%= empleado.hora_inicio || config.hora_inicio_general || '08:00' %></strong></p>
-          <p><span class="text-gray-600">Tolerancia:</span> <strong><%= empleado.tolerancia_minutos !== null ? empleado.tolerancia_minutos : (config.tolerancia_general || '10') %> min</strong></p>
-          <p><span class="text-gray-600">Descuento por minuto:</span> <strong>S/ <%= parseFloat(empleado.descuento_por_minuto || config.descuento_por_minuto || '0.50').toFixed(2) %></strong></p>
-        <% } %>
+      <div class="space-y-3 mb-6">
+        <% franjas.forEach(function(f) { %>
+          <% if (f.marcada) { %>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex justify-between items-center">
+              <div>
+                <span class="font-semibold text-gray-800"><%= f.franja %></span>
+              </div>
+              <span class="text-green-600 font-medium text-sm">✅ Marcado</span>
+            </div>
+          <% } else if (f.disponible) { %>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex justify-between items-center">
+              <div>
+                <span class="font-semibold text-gray-800"><%= f.franja %></span>
+              </div>
+              <form action="/empleado/marcar" method="POST" class="inline">
+                <input type="hidden" name="franja" value="<%= f.franja %>">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                  MARCAR
+                </button>
+              </form>
+            </div>
+          <% } else { %>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-center opacity-60">
+              <div>
+                <span class="font-semibold text-gray-800"><%= f.franja %></span>
+              </div>
+              <span class="text-gray-400 text-sm">Disponible desde las <strong><%= (() => {
+                var partes = f.franja.split(':');
+                var h = parseInt(partes[0]);
+                var m = parseInt(partes[1]) - 10;
+                if (m < 0) { h--; m += 60; }
+                return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+              })() %></strong></span>
+            </div>
+          <% } %>
+        <% }); %>
       </div>
 
       <% if (typeof retraso !== 'undefined' && retraso) { %>
-      <div class="bg-amber-50 border border-amber-200 text-amber-700 p-3 rounded-lg mb-4 text-sm">
-        ⚠️ Registraste tu entrada con <strong><%= retraso %> minutos</strong> de retraso
+      <div class="bg-amber-50 border border-amber-200 text-amber-700 p-3 rounded-lg mb-4 text-sm text-center">
+        ⚠️ Registraste con <strong><%= retraso %> minutos</strong> de retraso
       </div>
       <% } %>
-
-      <form action="/empleado/marcar" method="POST">
-        <button type="submit" id="btnMarcar"
-          class="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg transition duration-200 shadow-lg hover:shadow-xl">
-          MARCAR ENTRADA
-        </button>
-      </form>
     <% } %>
 
-    <div class="mt-6">
+    <div class="mt-6 text-center">
       <a href="/empleado/historial" class="text-blue-600 hover:text-blue-800 text-sm">Ver mi historial &rarr;</a>
     </div>
   </div>
@@ -95,7 +91,6 @@ function actualizarReloj() {
   const s = String(ahora.getSeconds()).padStart(2, '0');
   const el = document.getElementById('reloj');
   if (el) el.textContent = h + ':' + m + ':' + s;
-
   const fechaEl = document.getElementById('fecha');
   if (fechaEl) {
     const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
