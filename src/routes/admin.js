@@ -12,6 +12,11 @@ const {
   configView,
   updateConfig,
   seedData,
+  horariosView,
+  updateHorarioSemanal,
+  deleteHorarioSemanal,
+  createHorarioEspecifico,
+  deleteHorarioEspecifico,
 } = require("../controllers/adminController");
 
 router.use(requireAdmin);
@@ -26,5 +31,12 @@ router.get("/tardanzas", tardanzasView);
 router.get("/config", configView);
 router.post("/config", updateConfig);
 router.post("/seed", seedData);
+
+// Horarios
+router.get("/horarios", horariosView);
+router.post("/horarios/semanal", updateHorarioSemanal);
+router.post("/horarios/semanal/:empleado_id/:dia_semana/delete", deleteHorarioSemanal);
+router.post("/horarios/especifico", createHorarioEspecifico);
+router.post("/horarios/especifico/:horario_id/delete", deleteHorarioEspecifico);
 
 module.exports = router;

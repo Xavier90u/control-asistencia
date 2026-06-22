@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const Usuario = require("./src/models/Usuario");
 const Asistencia = require("./src/models/Asistencia");
 const Configuracion = require("./src/models/Configuracion");
+const Horario = require("./src/models/Horario");
 
 require("dotenv").config();
 
@@ -25,6 +26,7 @@ async function seed(force = false) {
     await Asistencia.deleteMany({});
     await Usuario.deleteMany({});
     await Configuracion.deleteMany({});
+    await Horario.deleteMany({});
   }
 
   const adminPass = bcrypt.hashSync("admin123", 10);
@@ -90,6 +92,53 @@ async function seed(force = false) {
   const cfg = {};
   configDocs.forEach((c) => (cfg[c.clave] = c.valor));
 
+  const diasSemana = [
+    { nombre: "Lunes", num: 1 },
+    { nombre: "Martes", num: 2 },
+    { nombre: "Mi\u00e9rcoles", num: 3 },
+    { nombre: "Jueves", num: 4 },
+    { nombre: "Viernes", num: 5 },
+  ];
+
+  const horariosDocentes = {
+    0: [
+      { diaSemana: 1, turnos: [{ horaInicio: "08:00", tolerancia: 10, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 2, turnos: [{ horaInicio: "08:00", tolerancia: 10, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 3, turnos: [{ horaInicio: "08:00", tolerancia: 10, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 4, turnos: [{ horaInicio: "08:00", tolerancia: 10, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 5, turnos: [{ horaInicio: "08:00", tolerancia: 10, descuentoPorMinuto: 0.5 }] },
+    ],
+    1: [
+      { diaSemana: 1, turnos: [{ horaInicio: "08:30", tolerancia: 15, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 2, turnos: [{ horaInicio: "08:30", tolerancia: 15, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 3, turnos: [{ horaInicio: "08:30", tolerancia: 15, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 4, turnos: [{ horaInicio: "08:30", tolerancia: 15, descuentoPorMinuto: 0.5 }] },
+      { diaSemana: 5, turnos: [{ horaInicio: "08:30", tolerancia: 15, descuentoPorMinuto: 0.5 }] },
+    ],
+    2: [
+      { diaSemana: 1, turnos: [{ horaInicio: "10:00", tolerancia: 5, descuentoPorMinuto: 0.75 }] },
+      { diaSemana: 2, turnos: [{ horaInicio: "10:00", tolerancia: 5, descuentoPorMinuto: 0.75 }] },
+      { diaSemana: 3, turnos: [{ horaInicio: "08:00", tolerancia: 5, descuentoPorMinuto: 0.75 }, { horaInicio: "16:00", tolerancia: 5, descuentoPorMinuto: 0.75 }] },
+      { diaSemana: 5, turnos: [{ horaInicio: "14:00", tolerancia: 5, descuentoPorMinuto: 0.75 }] },
+    ],
+    3: [
+      // Ana - sin horario, usa reglas generales
+    ],
+  };
+
+  for (let i = 0; i < empleados.length; i++) {
+    const emp = empleados[i];
+    const horarios = horariosDocentes[i] || [];
+    for (const h of horarios) {
+      await Horario.create({
+        empleado: emp._id,
+        tipo: "semanal",
+        diaSemana: h.diaSemana,
+        turnos: h.turnos,
+      });
+    }
+  }
+
   const hoy = new Date();
 
   for (let i = 14; i >= 0; i--) {
@@ -99,35 +148,52 @@ async function seed(force = false) {
       if (fecha.getDay() === 0 || fecha.getDay() === 6) continue;
 
       const fechaStr = fecha.toISOString().split("T")[0];
-      const horaInicioEmp = emp.horaInicio || cfg.hora_inicio_general || "08:00";
-      const toleranciaEmp = emp.toleranciaMinutos ?? parseInt(cfg.tolerancia_general || "10");
+      const dia = fecha.getDay();
 
-      const [hH, hM] = horaInicioEmp.split(":").map(Number);
-      const minInicio = hH * 60 + hM;
-      const minBase = minInicio + Math.floor(Math.random() * 20);
-      const retraso = Math.max(0, Math.floor(Math.random() * 25) - toleranciaEmp);
+      const horarioDoc = await Horario.findOne({
+        empleado: emp._id,
+        tipo: "semanal",
+        diaSemana: dia,
+      }).lean();
 
-      const horaMinutos = minBase + retraso;
-      const hora = String(Math.floor(horaMinutos / 60)).padStart(2, "0");
-      const min = String(horaMinutos % 60).padStart(2, "0");
-      const seg = String(Math.floor(Math.random() * 60)).padStart(2, "0");
-      const minutosRetraso = Math.max(0, horaMinutos - (minInicio + toleranciaEmp));
+      const turnos = horarioDoc?.turnos || [
+        {
+          horaInicio: emp.horaInicio || cfg.hora_inicio_general || "08:00",
+          tolerancia: emp.toleranciaMinutos ?? parseInt(cfg.tolerancia_general || "10"),
+          descuentoPorMinuto: emp.descuentoPorMinuto ?? parseFloat(cfg.descuento_por_minuto || "0.50"),
+        },
+      ];
 
-      try {
-        await Asistencia.create({
-          empleado: emp._id,
-          fecha: fechaStr,
-          horaMarcacion: `${hora}:${min}:${seg}`,
-          horaEsperada: horaInicioEmp,
-          minutosRetraso,
-        });
-      } catch (e) {
-        // ignore duplicate
+      for (let ti = 0; ti < turnos.length; ti++) {
+        const t = turnos[ti];
+        const [hH, hM] = t.horaInicio.split(":").map(Number);
+        const minInicio = hH * 60 + hM;
+        const minBase = minInicio + Math.floor(Math.random() * 20);
+        const retrasoSim = Math.max(0, Math.floor(Math.random() * 25) - t.tolerancia);
+
+        const horaMinutos = minBase + retrasoSim;
+        const hora = String(Math.floor(horaMinutos / 60)).padStart(2, "0");
+        const min = String(horaMinutos % 60).padStart(2, "0");
+        const seg = String(Math.floor(Math.random() * 60)).padStart(2, "0");
+        const minutosRetraso = Math.max(0, horaMinutos - (minInicio + t.tolerancia));
+
+        try {
+          await Asistencia.create({
+            empleado: emp._id,
+            fecha: fechaStr,
+            horaMarcacion: `${hora}:${min}:${seg}`,
+            horaEsperada: t.horaInicio,
+            minutosRetraso,
+            turnoIndex: ti,
+          });
+        } catch (e) {
+          // ignore duplicate
+        }
       }
     }
   }
 
-  const mensaje = "Base de datos creada con datos demo (14 días).";
+  const mensaje = "Base de datos creada con datos demo (14 d\u00edas, horarios variables).";
   console.log("✅ " + mensaje);
 
   console.log("");

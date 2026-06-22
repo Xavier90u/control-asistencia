@@ -2,7 +2,9 @@ const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
 const Configuracion = require("../models/Configuracion");
+const Horario = require("../models/Horario");
 const tz = require("../utils/timezone");
+const horario = require("../utils/horario");
 
 async function dashboard(req, res) {
   const totalEmpleados = await Usuario.countDocuments({
@@ -151,8 +153,7 @@ async function tardanzasView(req, res) {
   const descuentoGeneral = parseFloat(config.descuento_por_minuto || "0.50");
 
   const registrosConDescuento = registros.map((r) => {
-    const horaInicioEmp =
-      r.empleado?.horaInicio || config.hora_inicio_general || "08:00";
+    const horaInicioEmp = r.horaEsperada || r.empleado?.horaInicio || config.hora_inicio_general || "08:00";
     const toleranciaEmp =
       r.empleado?.toleranciaMinutos ??
       parseInt(config.tolerancia_general || "10");
@@ -175,6 +176,7 @@ async function tardanzasView(req, res) {
       empleado_email: r.empleado?.email || "—",
       descuento_x_minuto: dtoXMinuto,
       descuento_total: descuentoTotal,
+      turno: (r.turnoIndex ?? 0) + 1,
     };
   });
 
@@ -228,13 +230,128 @@ async function updateConfig(req, res) {
       );
   }
   tz.getConfig.resetCache?.();
-  res.redirect("/admin/config?success=Configuración actualizada");
+  res.redirect("/admin/config?success=Configuraci\u00f3n actualizada");
 }
 
 async function seedData(req, res) {
   const { seed } = require("../../seed");
   const result = await seed(true);
   res.redirect(`/admin?success=${encodeURIComponent(result.message)}`);
+}
+
+// --- Horario CRUD ---
+
+async function horariosView(req, res) {
+  const empleadoId = req.query.empleado_id;
+  const empleados = await Usuario.find({ rol: "empleado", activo: true })
+    .select("nombre")
+    .sort({ nombre: 1 })
+    .lean();
+
+  let horarioSemanal = [];
+  let horariosEspecificos = [];
+  let empleadoSeleccionado = null;
+
+  if (empleadoId) {
+    empleadoSeleccionado = await Usuario.findById(empleadoId).lean();
+    horarioSemanal = await Horario.find({
+      empleado: empleadoId,
+      tipo: "semanal",
+    })
+      .sort({ diaSemana: 1 })
+      .lean();
+
+    horariosEspecificos = await Horario.find({
+      empleado: empleadoId,
+      tipo: "especifico",
+    })
+      .sort({ fecha: -1 })
+      .lean();
+  }
+
+  const dias = ["Domingo", "Lunes", "Martes", "Mi\u00e9rcoles", "Jueves", "Viernes", "S\u00e1bado"];
+
+  res.render("admin/horarios", {
+    empleados,
+    empleadoSeleccionado,
+    horarioSemanal,
+    horariosEspecificos,
+    dias,
+    empleadoId: empleadoId || "",
+  });
+}
+
+async function updateHorarioSemanal(req, res) {
+  const { empleado_id, dia_semana, turnos } = req.body;
+  const mongoose = require("mongoose");
+  const empId = new mongoose.Types.ObjectId(empleado_id);
+
+  const empleado = await Usuario.findById(empId);
+  if (!empleado)
+    return res.redirect("/admin/horarios?error=Empleado no encontrado");
+
+  if (!turnos || turnos.length === 0) {
+    await Horario.deleteOne({ empleado: empId, tipo: "semanal", diaSemana: parseInt(dia_semana) });
+  } else {
+    const turnosData = turnos
+      .filter((t) => t && t.horaInicio)
+      .map((t) => ({
+        horaInicio: t.horaInicio,
+        tolerancia: parseInt(t.tolerancia) || 10,
+        descuentoPorMinuto: parseFloat(t.descuentoPorMinuto) || 0.5,
+      }));
+
+    await Horario.updateOne(
+      { empleado: empId, tipo: "semanal", diaSemana: parseInt(dia_semana) },
+      { $set: { turnos: turnosData } },
+      { upsert: true }
+    );
+  }
+
+  res.redirect(`/admin/horarios?empleado_id=${empleado_id}&success=Horario semanal actualizado`);
+}
+
+async function deleteHorarioSemanal(req, res) {
+  const { empleado_id, dia_semana } = req.params;
+  await Horario.deleteOne({
+    empleado: empleado_id,
+    tipo: "semanal",
+    diaSemana: parseInt(dia_semana),
+  });
+  res.redirect(`/admin/horarios?empleado_id=${empleado_id}&success=Horario eliminado`);
+}
+
+async function createHorarioEspecifico(req, res) {
+  const { empleado_id, fecha, turnos } = req.body;
+  const mongoose = require("mongoose");
+  const empId = new mongoose.Types.ObjectId(empleado_id);
+
+  const empleado = await Usuario.findById(empId);
+  if (!empleado)
+    return res.redirect("/admin/horarios?error=Empleado no encontrado");
+
+  const turnosData = turnos
+    .filter((t) => t && t.horaInicio)
+    .map((t) => ({
+      horaInicio: t.horaInicio,
+      tolerancia: parseInt(t.tolerancia) || 10,
+      descuentoPorMinuto: parseFloat(t.descuentoPorMinuto) || 0.5,
+    }));
+
+  await Horario.updateOne(
+    { empleado: empId, tipo: "especifico", fecha },
+    { $set: { turnos: turnosData } },
+    { upsert: true }
+  );
+
+  res.redirect(`/admin/horarios?empleado_id=${empleado_id}&success=Horario espec\u00edfico creado`);
+}
+
+async function deleteHorarioEspecifico(req, res) {
+  const { horario_id } = req.params;
+  const { empleado_id } = req.query;
+  await Horario.deleteOne({ _id: horario_id, empleado: empleado_id, tipo: "especifico" });
+  res.redirect(`/admin/horarios?empleado_id=${empleado_id}&success=Horario eliminado`);
 }
 
 async function getConfigMap() {
@@ -255,4 +372,9 @@ module.exports = {
   configView,
   updateConfig,
   seedData,
+  horariosView,
+  updateHorarioSemanal,
+  deleteHorarioSemanal,
+  createHorarioEspecifico,
+  deleteHorarioEspecifico,
 };

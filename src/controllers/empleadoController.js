@@ -2,6 +2,7 @@ const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
 const Configuracion = require("../models/Configuracion");
 const tz = require("../utils/timezone");
+const horario = require("../utils/horario");
 
 async function marcacionView(req, res) {
   const mongoose = require("mongoose");
@@ -18,23 +19,40 @@ async function marcacionView(req, res) {
   const config = await getConfigMap();
   const tzCfg = await tz.getConfig();
 
-  const asistRaw = await Asistencia.findOne({
+  const turnosHoy = await horario.getTurnosHoy(userId);
+  const marcacionesHoy = await Asistencia.find({
     empleado: userId,
     fecha: fechaStr,
-  }).lean();
+  })
+    .sort({ turnoIndex: 1 })
+    .lean();
 
-  const asistenciaHoy = asistRaw
-    ? {
-        ...asistRaw,
-        horaMarcacion: tz.formatHora(asistRaw.horaMarcacion),
-      }
-    : null;
+  const marcados = {};
+  marcacionesHoy.forEach((m) => (marcados[m.turnoIndex] = m));
+
+  const turnosConEstado = turnosHoy.map((t, i) => ({
+    ...t,
+    index: i,
+    marcado: !!marcados[i],
+    asistencia: marcados[i]
+      ? { ...marcados[i], horaMarcacion: tz.formatHora(marcados[i].horaMarcacion) }
+      : null,
+  }));
+
+  const todosMarcados = turnosConEstado.every((t) => t.marcado);
 
   const now = tz.now();
   const horaActual = now.format("HH:mm:ss");
 
+  // Obtener la asistencia del TURNO ACTUAL (ultimo turno marcado o el siguiente)
+  // Para compatibilidad con la vista anterior, pasamos el primer turno como asistenciaHoy
+  const primerMarcado = turnosConEstado.find((t) => t.marcado);
+  const asistenciaHoy = primerMarcado?.asistencia || null;
+
   res.render("empleado/marcacion", {
     empleado,
+    turnos: turnosConEstado,
+    todosMarcados,
     asistenciaHoy,
     config: { ...config, ...tzCfg },
     horaActual,
@@ -53,19 +71,31 @@ async function marcar(req, res) {
   const fechaStr = tz.todayStr();
   const horaStr = tz.timeStr();
 
-  const existing = await Asistencia.findOne({
+  const turnosHoy = await horario.getTurnosHoy(empleadoId);
+  const marcacionesHoy = await Asistencia.find({
     empleado: empleadoId,
     fecha: fechaStr,
-  });
-  if (existing) return res.redirect("/empleado?error=Ya marcaste entrada hoy");
+  }).lean();
 
-  const config = await getConfigMap();
+  const marcadosSet = new Set(marcacionesHoy.map((m) => m.turnoIndex));
 
-  const horaInicio =
-    empleado.horaInicio || config.hora_inicio_general || "08:00";
-  const tolerancia =
-    empleado.toleranciaMinutos ??
-    parseInt(config.tolerancia_general || "10");
+  // Find next unmarked turno
+  let turnoIndex = -1;
+  let turno = null;
+  for (let i = 0; i < turnosHoy.length; i++) {
+    if (!marcadosSet.has(i)) {
+      turnoIndex = i;
+      turno = turnosHoy[i];
+      break;
+    }
+  }
+
+  if (turnoIndex === -1) {
+    return res.redirect("/empleado?error=Ya marcaste todos tus turnos hoy");
+  }
+
+  const horaInicio = turno.horaInicio;
+  const tolerancia = turno.tolerancia;
 
   const minInicio = tz.horasToMinutes(horaInicio);
   const minActual = tz.horasToMinutes(horaStr);
@@ -77,13 +107,25 @@ async function marcar(req, res) {
     horaMarcacion: horaStr,
     horaEsperada: horaInicio,
     minutosRetraso,
+    turnoIndex,
   });
 
+  const totalTurnos = turnosHoy.length;
+  const marcadosAhora = marcadosSet.size + 1;
+  let msg;
   if (minutosRetraso > 0) {
-    res.redirect(`/empleado?success=Entrada registrada&retraso=${minutosRetraso}`);
+    msg = `Turno ${turnoIndex + 1} registrado con ${minutosRetraso} min de retraso`;
   } else {
-    res.redirect("/empleado?success=Entrada registrada a tiempo");
+    msg = `Turno ${turnoIndex + 1} registrado a tiempo`;
   }
+
+  if (marcadosAhora < totalTurnos) {
+    msg += `. Te falta${totalTurnos - marcadosAhora > 1 ? "n" : ""} ${totalTurnos - marcadosAhora} turno${totalTurnos - marcadosAhora > 1 ? "s" : ""} m\u00e1s`;
+  } else {
+    msg += ". Todos los turnos registrados hoy";
+  }
+
+  res.redirect(`/empleado?success=${encodeURIComponent(msg)}`);
 }
 
 async function historialView(req, res) {

@@ -11,10 +11,11 @@ const asistenciaSchema = new mongoose.Schema(
     horaMarcacion: { type: String, required: true },
     horaEsperada: { type: String, required: true },
     minutosRetraso: { type: Number, default: 0 },
+    turnoIndex: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
 
-asistenciaSchema.index({ empleado: 1, fecha: 1 }, { unique: true });
+asistenciaSchema.index({ empleado: 1, fecha: 1, turnoIndex: 1 });
 
 module.exports = mongoose.model("Asistencia", asistenciaSchema);

@@ -37,6 +37,7 @@
         <tr>
           <th class="text-left py-3 px-4">Empleado</th>
           <th class="text-left py-3 px-4">Fecha</th>
+          <th class="text-center py-3 px-4">Turno</th>
           <th class="text-center py-3 px-4">Hora Esperada</th>
           <th class="text-center py-3 px-4">Hora Marcada</th>
           <th class="text-center py-3 px-4">Retraso (min)</th>
@@ -49,6 +50,7 @@
         <tr class="hover:bg-gray-50 <%= r.minutos_retraso > 0 ? 'bg-red-50' : 'bg-green-50' %>">
           <td class="py-3 px-4 font-medium text-gray-800"><%= r.empleado_nombre %></td>
           <td class="py-3 px-4 text-gray-600"><%= r.fecha %></td>
+          <td class="text-center py-3 px-4"><%= r.turno %></td>
           <td class="text-center py-3 px-4 text-gray-600"><%= r.hora_esperada %></td>
           <td class="text-center py-3 px-4 font-medium <%= r.minutos_retraso > 0 ? 'text-red-600' : 'text-green-600' %>">
             <%= r.hora_marcacion %>
@@ -68,7 +70,7 @@
         <% }) %>
         <% if (registros.length === 0) { %>
         <tr>
-          <td colspan="7" class="text-center py-8 text-gray-500">No se encontraron registros</td>
+          <td colspan="8" class="text-center py-8 text-gray-500">No se encontraron registros</td>
         </tr>
         <% } %>
       </tbody>

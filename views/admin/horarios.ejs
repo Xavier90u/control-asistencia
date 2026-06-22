@@ -1,0 +1,167 @@
+<% titulo = 'Horarios - Admin'; %>
+<h1 class="text-2xl font-bold text-gray-800 mb-6">Gestión de Horarios</h1>
+
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+  <form method="GET" class="flex items-end space-x-4">
+    <div class="flex-1">
+      <label class="block text-gray-700 text-sm font-medium mb-1">Seleccionar docente</label>
+      <select name="empleado_id" onchange="this.form.submit()"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+        <option value="">-- Selecciona un docente --</option>
+        <% empleados.forEach(function(emp) { %>
+        <option value="<%= emp._id %>" <%= empleadoId == emp._id ? 'selected' : '' %>><%= emp.nombre %></option>
+        <% }); %>
+      </select>
+    </div>
+    <% if (empleadoId) { %>
+    <a href="/admin/horarios" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg text-sm hover:bg-gray-50">Limpiar</a>
+    <% } %>
+  </form>
+</div>
+
+<% if (empleadoSeleccionado) { %>
+<h2 class="text-lg font-semibold text-gray-800 mb-4">Horario semanal: <span class="text-blue-600"><%= empleadoSeleccionado.nombre %></span></h2>
+
+<div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+      <tr>
+        <th class="text-left py-3 px-4">Día</th>
+        <th class="text-center py-3 px-4">Turno 1</th>
+        <th class="text-center py-3 px-4">Tol.</th>
+        <th class="text-center py-3 px-4">Dto./min</th>
+        <th class="text-center py-3 px-4">Turno 2</th>
+        <th class="text-center py-3 px-4">Tol.</th>
+        <th class="text-center py-3 px-4">Dto./min</th>
+        <th class="text-center py-3 px-4">Acción</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% var diasNum = [1,2,3,4,5,6,0]; // Lunes first %>
+      <% diasNum.forEach(function(d) { %>
+      <% var h = horarioSemanal.find(function(hs) { return hs.diaSemana === d; }); %>
+      <tr class="hover:bg-gray-50">
+        <form action="/admin/horarios/semanal" method="POST" class="inline">
+          <input type="hidden" name="empleado_id" value="<%= empleadoId %>">
+          <input type="hidden" name="dia_semana" value="<%= d %>">
+          <td class="py-3 px-4 font-medium text-gray-800"><%= dias[d] %></td>
+          <td class="text-center py-3 px-4">
+            <input type="time" name="turnos[0][horaInicio]" value="<%= h && h.turnos[0] ? h.turnos[0].horaInicio : '' %>"
+              class="w-24 px-2 py-1 border border-gray-300 rounded text-xs">
+          </td>
+          <td class="text-center py-3 px-4">
+            <input type="number" name="turnos[0][tolerancia]" min="0" value="<%= h && h.turnos[0] ? h.turnos[0].tolerancia : '' %>"
+              class="w-16 px-2 py-1 border border-gray-300 rounded text-xs" placeholder="10">
+          </td>
+          <td class="text-center py-3 px-4">
+            <input type="number" step="0.01" min="0" name="turnos[0][descuentoPorMinuto]" value="<%= h && h.turnos[0] ? h.turnos[0].descuentoPorMinuto : '' %>"
+              class="w-20 px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.50">
+          </td>
+          <td class="text-center py-3 px-4">
+            <input type="time" name="turnos[1][horaInicio]" value="<%= h && h.turnos[1] ? h.turnos[1].horaInicio : '' %>"
+              class="w-24 px-2 py-1 border border-gray-300 rounded text-xs">
+          </td>
+          <td class="text-center py-3 px-4">
+            <input type="number" name="turnos[1][tolerancia]" min="0" value="<%= h && h.turnos[1] ? h.turnos[1].tolerancia : '' %>"
+              class="w-16 px-2 py-1 border border-gray-300 rounded text-xs" placeholder="10">
+          </td>
+          <td class="text-center py-3 px-4">
+            <input type="number" step="0.01" min="0" name="turnos[1][descuentoPorMinuto]" value="<%= h && h.turnos[1] ? h.turnos[1].descuentoPorMinuto : '' %>"
+              class="w-20 px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.50">
+          </td>
+          <td class="text-center py-3 px-4">
+            <button type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs font-medium">Guardar</button>
+          </td>
+        </form>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="text-lg font-semibold text-gray-800 mb-4">Horarios específicos (por fecha)</h2>
+
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+  <form action="/admin/horarios/especifico" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+    <input type="hidden" name="empleado_id" value="<%= empleadoId %>">
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Fecha</label>
+      <input type="date" name="fecha" required
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Turno 1 - Hora inicio</label>
+      <input type="time" name="turnos[0][horaInicio]" required
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Tolerancia (min)</label>
+      <input type="number" name="turnos[0][tolerancia]" min="0" value="10"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Dto. x minuto (S/)</label>
+      <input type="number" step="0.01" min="0" name="turnos[0][descuentoPorMinuto]" value="0.50"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Turno 2 - Hora inicio <span class="text-gray-400">(opcional)</span></label>
+      <input type="time" name="turnos[1][horaInicio]"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Tolerancia turno 2</label>
+      <input type="number" name="turnos[1][tolerancia]" min="0" value="10"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div>
+      <label class="block text-gray-700 text-sm font-medium mb-1">Dto. x minuto turno 2</label>
+      <input type="number" step="0.01" min="0" name="turnos[1][descuentoPorMinuto]" value="0.50"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+    </div>
+    <div class="md:col-span-2">
+      <button type="submit"
+        class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-lg text-sm">Agregar horario específico</button>
+    </div>
+  </form>
+</div>
+
+<% if (horariosEspecificos.length > 0) { %>
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+      <tr>
+        <th class="text-left py-3 px-4">Fecha</th>
+        <th class="text-center py-3 px-4">Turno 1</th>
+        <th class="text-center py-3 px-4">Turno 2</th>
+        <th class="text-center py-3 px-4">Acción</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200">
+      <% horariosEspecificos.forEach(function(h) { %>
+      <tr class="hover:bg-gray-50">
+        <td class="py-3 px-4 font-medium text-gray-800"><%= h.fecha %></td>
+        <td class="text-center py-3 px-4">
+          <% if (h.turnos[0]) { %>
+            <%= h.turnos[0].horaInicio %> (tol: <%= h.turnos[0].tolerancia %>)
+          <% } %>
+        </td>
+        <td class="text-center py-3 px-4">
+          <% if (h.turnos[1]) { %>
+            <%= h.turnos[1].horaInicio %> (tol: <%= h.turnos[1].tolerancia %>)
+          <% } else { %>—<% } %>
+        </td>
+        <td class="text-center py-3 px-4">
+          <form action="/admin/horarios/especifico/<%= h._id %>/delete?empleado_id=<%= empleadoId %>" method="POST" class="inline"
+            onsubmit="return confirm('¿Eliminar este horario específico?')">
+            <button type="submit"
+              class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-xs font-medium">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>
+<% } } %>
