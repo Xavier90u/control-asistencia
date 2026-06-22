@@ -77,7 +77,7 @@ async function marcar(req, res) {
     fecha: fechaStr,
   }).lean();
 
-  const marcadosSet = new Set(marcacionesHoy.map((m) => m.turnoIndex));
+  const marcadosSet = new Set(marcacionesHoy.map((m) => m.turnoIndex ?? 0));
 
   // Find next unmarked turno
   let turnoIndex = -1;

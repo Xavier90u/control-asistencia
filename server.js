@@ -23,6 +23,18 @@ async function start() {
       tlsAllowInvalidCertificates: true,
     });
     console.log("Conectado a MongoDB");
+
+    // Eliminar índice único antiguo (empleado + fecha) que bloquea multi-turno
+    try {
+      const col = mongoose.connection.collection("asistencias");
+      const indexes = await col.indexes();
+      const oldIdx = indexes.find((i) => i.key?.empleado && i.key?.fecha && i.unique);
+      if (oldIdx) {
+        await col.dropIndex(oldIdx.name);
+        console.log("Índice único obsoleto eliminado:", oldIdx.name);
+      }
+    } catch (_) { /* ignore */ }
+
     await initDefaults();
     console.log("Timezone config initialized");
   } catch (e) {
