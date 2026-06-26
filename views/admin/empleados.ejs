@@ -1,0 +1,126 @@
+<% titulo = 'Empleados - Admin'; %>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+  <h1 class="text-2xl sm:text-3xl font-bold text-primary">Empleados</h1>
+  <button onclick="document.getElementById('modalCreate').classList.remove('hidden')"
+    class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg w-full sm:w-auto transition">
+    + Nuevo Empleado
+  </button>
+</div>
+
+<div class="card-surface rounded-2xl shadow-lg overflow-hidden border">
+  <div class="overflow-x-auto mobile-card-table">
+    <table class="w-full text-sm">
+      <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+        <tr>
+          <th class="text-left py-3 px-3 sm:px-4">Nombre</th>
+          <th class="text-left py-3 px-3 sm:px-4 hidden sm:table-cell">Email</th>
+          <th class="text-center py-3 px-3 sm:px-4">Estado</th>
+          <th class="text-center py-3 px-3 sm:px-4 hidden md:table-cell">Área</th>
+          <th class="text-center py-3 px-3 sm:px-4">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% empleados.forEach(function(emp) { %>
+        <tr>
+          <td class="py-3 px-3 sm:px-4" data-label="Nombre">
+            <div class="font-semibold text-primary"><%= emp.nombre %></div>
+            <div class="text-xs text-muted sm:hidden"><%= emp.email %></div>
+          </td>
+          <td class="py-3 px-3 sm:px-4 text-muted hidden sm:table-cell"><%= emp.email %></td>
+          <td class="text-center py-3 px-3 sm:px-4" data-label="Estado">
+            <% if (emp.activo) { %>
+              <span class="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Activo</span>
+            <% } else { %>
+              <span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Inactivo</span>
+            <% } %>
+          </td>
+          <td class="text-center py-3 px-3 sm:px-4 text-muted hidden md:table-cell"><%= emp.area_nombre %></td>
+          <td class="text-center py-3 px-3 sm:px-4" data-label="Acciones">
+            <div class="flex justify-center gap-1 sm:gap-2">
+              <a href="/admin/empleados/<%= emp.id %>/editar"
+                class="text-primary px-2.5 py-1 rounded-lg text-xs font-semibold transition hover:opacity-80" style="background-color: var(--color-primary-light);">Editar</a>
+              <form action="/admin/empleados/<%= emp.id %>/toggle" method="POST" class="inline">
+                <button type="submit"
+                  class="<%= emp.activo ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-green-600 bg-green-50 hover:bg-green-100' %> px-2.5 py-1 rounded-lg text-xs font-semibold transition">
+                  <%= emp.activo ? 'Desact.' : 'Activar' %>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+        <% if (empleados.length === 0) { %>
+        <tr><td colspan="5" class="text-center py-10 text-muted">No hay empleados registrados</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="modalCreate" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="card-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border">
+    <div class="flex justify-between items-center p-5 border-b" style="border-color: var(--color-border);">
+      <h2 class="text-lg font-bold text-primary">Nuevo Empleado</h2>
+      <button onclick="document.getElementById('modalCreate').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center transition" style="background-color: var(--color-surface-alt); color: var(--color-muted);">&times;</button>
+    </div>
+    <form action="/admin/empleados" method="POST" class="p-5 space-y-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre completo</label>
+        <input type="text" name="nombre" required
+          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Email</label>
+        <input type="email" name="email" required
+          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Contraseña</label>
+        <input type="password" name="password" required
+          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Área / Carrera</label>
+        <select name="area" class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <option value="">Sin área</option>
+          <% areas.forEach(function(a) { %>
+          <option value="<%= a._id %>"><%= a.nombre %></option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Hora inicio</label>
+          <input type="time" name="hora_inicio"
+            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
+            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Tolerancia</label>
+          <input type="number" name="tolerancia_minutos" min="0" placeholder="min"
+            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
+            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Dto. x min</label>
+          <input type="number" step="0.01" min="0" name="descuento_por_minuto" placeholder="S/"
+            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
+            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 pt-4 border-t" style="border-color: var(--color-border);">
+        <button type="button" onclick="document.getElementById('modalCreate').classList.add('hidden')"
+          class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
+          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</button>
+        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

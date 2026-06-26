@@ -1,0 +1,105 @@
+<% titulo = 'Tardanzas - Admin'; %>
+<h1 class="text-2xl sm:text-3xl font-bold text-primary mb-6">Reporte de Tardanzas</h1>
+
+<div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 mb-6 border">
+  <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+    <div>
+      <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color: var(--color-muted);">Desde</label>
+      <input type="date" name="fecha_desde" value="<%= filtros.fecha_desde || '' %>"
+        class="w-full px-3 py-2.5 border-2 rounded-xl text-sm focus:ring-2 outline-none transition"
+        style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color: var(--color-muted);">Hasta</label>
+      <input type="date" name="fecha_hasta" value="<%= filtros.fecha_hasta || '' %>"
+        class="w-full px-3 py-2.5 border-2 rounded-xl text-sm focus:ring-2 outline-none transition"
+        style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color: var(--color-muted);">Empleado</label>
+      <select name="empleado_id"
+        class="w-full px-3 py-2.5 border-2 rounded-xl text-sm focus:ring-2 outline-none transition"
+        style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <option value="">Todos</option>
+        <% empleados.forEach(function(emp) { %>
+        <option value="<%= emp.id %>" <%= filtros.empleado_id == emp.id ? 'selected' : '' %>><%= emp.nombre %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div>
+      <button type="submit"
+        class="btn-primary w-full px-4 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Filtrar</button>
+    </div>
+  </form>
+</div>
+
+<% if (registros.length > 0) { %>
+  <% var totalDescuento = 0; registros.forEach(function(r) { totalDescuento += Math.max(0, parseFloat(r.descuento_total || 0)); }); %>
+
+  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 mb-6 border flex flex-col sm:flex-row justify-between items-center gap-3">
+    <span class="text-muted text-sm">📋 Total: <strong><%= registros.length %></strong> registros</span>
+    <span class="text-lg sm:text-xl font-bold text-red-600">Total descuentos: S/ <%= totalDescuento.toFixed(2) %></span>
+  </div>
+
+  <% semanas.forEach(function(semana) { %>
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background-color: var(--color-primary-light); color: var(--color-primary);">📅</div>
+      <div>
+        <h2 class="font-bold text-primary text-base sm:text-lg">Semana: <%= semana.label %></h2>
+        <p class="text-xs text-muted"><%= semana.registros.length %> registros<% if (semana.totalTardanzas > 0) { %> · <span class="text-amber-500"><%= semana.totalTardanzas %> tardanza(s)</span><% } %> · <span class="text-red-500">S/ <%= semana.totalDescuento.toFixed(2) %></span></p>
+      </div>
+    </div>
+
+    <div class="card-surface rounded-2xl shadow-lg border overflow-hidden">
+      <div class="mobile-card-table">
+        <table class="w-full text-sm">
+          <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+            <tr>
+              <th class="text-left py-3 px-3 sm:px-4">Empleado</th>
+              <th class="text-center py-3 px-3 sm:px-4">Día</th>
+              <th class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell">Hora Esperada</th>
+              <th class="text-center py-3 px-3 sm:px-4">Hora Marcada</th>
+              <th class="text-center py-3 px-3 sm:px-4">Retraso</th>
+              <th class="text-center py-3 px-3 sm:px-4">Descuento</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% semana.registros.forEach(function(r) { %>
+            <tr class="<%= r.minutos_retraso > 0 ? 'bg-red-50/50' : 'bg-green-50/50' %>">
+              <td class="py-3 px-3 sm:px-4" data-label="Empleado">
+                <div class="font-semibold text-primary text-xs sm:text-sm"><%= r.empleado_nombre %></div>
+                <div class="text-xs text-muted sm:hidden"><%= r.fecha %></div>
+              </td>
+              <td class="text-center py-3 px-3 sm:px-4" data-label="Día">
+                <div class="font-medium text-muted text-xs"><%= r.diaLabel %></div>
+                <div class="text-xs text-muted sm:hidden"><%= r.fecha %></div>
+              </td>
+              <td class="text-center py-3 px-3 sm:px-4 text-muted hidden sm:table-cell"><%= r.hora_esperada %></td>
+              <td class="text-center py-3 px-3 sm:px-4 font-mono font-semibold text-xs sm:text-sm <%= r.minutos_retraso > 0 ? 'text-red-600' : 'text-green-600' %>" data-label="Marcada">
+                <%= r.hora_marcacion.substring(0,5) %>
+              </td>
+              <td class="text-center py-3 px-3 sm:px-4" data-label="Retraso">
+                <% if (r.minutos_retraso > 0) { %>
+                  <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold"><%= r.minutos_retraso %> min</span>
+                <% } else { %>
+                  <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-bold">OK</span>
+                <% } %>
+              </td>
+              <td class="text-center py-3 px-3 sm:px-4 font-bold text-xs sm:text-sm <%= r.minutos_retraso > 0 ? 'text-red-600' : 'text-green-600' %>" data-label="Descuento">
+                S/ <%= Math.max(0, parseFloat(r.descuento_total || 0)).toFixed(2) %>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <% }) %>
+<% } else { %>
+<div class="card-surface rounded-2xl shadow-lg border p-10 text-center">
+  <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl" style="background-color: var(--color-surface-alt);">📋</div>
+  <p class="text-muted font-medium">No se encontraron registros</p>
+</div>
+<% } %>

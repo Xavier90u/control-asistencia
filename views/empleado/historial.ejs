@@ -1,0 +1,94 @@
+<% titulo = 'Mi Historial'; %>
+<h1 class="text-2xl sm:text-3xl font-bold text-primary mb-6">Mi Historial</h1>
+
+<div class="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4" style="border-left-color: var(--color-primary);">
+    <p class="text-muted text-xs font-medium uppercase tracking-wide">Registros</p>
+    <p class="text-2xl sm:text-3xl font-bold text-primary mt-1"><%= resumen.total_dias %></p>
+  </div>
+  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4 border-l-amber-500">
+    <p class="text-muted text-xs font-medium uppercase tracking-wide">Tardanzas</p>
+    <p class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1"><%= resumen.tardanzas || 0 %></p>
+  </div>
+  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4 border-l-red-500">
+    <p class="text-muted text-xs font-medium uppercase tracking-wide">Min. retraso</p>
+    <p class="text-2xl sm:text-3xl font-bold text-red-600 mt-1"><%= resumen.total_minutos_retraso || 0 %></p>
+  </div>
+</div>
+
+<% semanas.forEach(function(semana) { %>
+<div class="mb-6">
+  <div class="flex items-center gap-3 mb-3">
+    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background-color: var(--color-primary-light); color: var(--color-primary);">📅</div>
+    <div>
+      <h2 class="font-bold text-primary text-base sm:text-lg">Semana: <%= semana.label %></h2>
+      <p class="text-xs text-muted"><%= semana.totalRegistros %> registros<% if (semana.totalTardanzas > 0) { %> · <span class="text-amber-500"><%= semana.totalTardanzas %> tardanza(s)</span><% } %></p>
+    </div>
+  </div>
+
+  <div class="card-surface rounded-2xl shadow-lg border overflow-hidden">
+    <div class="mobile-card-table">
+      <table class="w-full text-sm">
+        <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+          <tr>
+            <th class="text-left py-3 px-3 sm:px-4">Día</th>
+            <th class="text-center py-3 px-3 sm:px-4">Hora Marcada</th>
+            <th class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell">Hora Esperada</th>
+            <th class="text-center py-3 px-3 sm:px-4">Estado</th>
+            <th class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell">Retraso</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% semana.registros.forEach(function(r) { %>
+          <tr>
+            <td class="py-3 px-3 sm:px-4" data-label="Día">
+              <div class="font-semibold text-primary"><%= r.diaLabel %></div>
+              <div class="text-xs text-muted"><%= r.fecha %></div>
+            </td>
+            <td class="text-center py-3 px-3 sm:px-4 font-mono font-semibold text-sm <%= r.minutosRetraso > 0 ? 'text-red-600' : 'text-green-600' %>" data-label="Marcada">
+              <%= r.horaMarcacion.substring(0,5) %>
+            </td>
+            <td class="text-center py-3 px-3 sm:px-4 text-muted hidden sm:table-cell"><%= r.horaEsperada %></td>
+            <td class="text-center py-3 px-3 sm:px-4" data-label="Estado">
+              <% if (r.minutosRetraso > 0) { %>
+                <span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Tarde</span>
+              <% } else { %>
+                <span class="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold">OK</span>
+              <% } %>
+            </td>
+            <td class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell" data-label="Retraso">
+              <% if (r.minutosRetraso > 0) { %>
+                <span class="text-red-600 font-semibold"><%= r.minutosRetraso %> min</span>
+              <% } else { %>
+                <span class="text-muted opacity-40">—</span>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<% }) %>
+
+<% if (registrosFormateados.length === 0) { %>
+<div class="card-surface rounded-2xl shadow-lg border p-10 text-center">
+  <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl" style="background-color: var(--color-surface-alt);">📋</div>
+  <p class="text-muted font-medium">Aún no tienes registros de asistencia</p>
+</div>
+<% } %>
+
+<% if (totalPages > 1) { %>
+<div class="flex justify-center mt-6 gap-2">
+  <% if (page > 1) { %>
+    <a href="/empleado/historial?page=<%= page - 1 %>" class="card-surface border px-4 py-2 rounded-xl text-sm hover:opacity-80 transition font-medium">← Anterior</a>
+  <% } %>
+  <% for (var i = 1; i <= totalPages; i++) { %>
+    <a href="/empleado/historial?page=<%= i %>" class="w-10 h-10 flex items-center justify-center border rounded-xl text-sm font-medium transition <%= i === page ? 'btn-primary border-0 shadow-lg' : 'card-surface hover:opacity-80' %>"><%= i %></a>
+  <% } %>
+  <% if (page < totalPages) { %>
+    <a href="/empleado/historial?page=<%= page + 1 %>" class="card-surface border px-4 py-2 rounded-xl text-sm hover:opacity-80 transition font-medium">Siguiente →</a>
+  <% } %>
+</div>
+<% } %>

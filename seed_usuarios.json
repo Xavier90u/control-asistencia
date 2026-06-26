@@ -1,0 +1,86 @@
+[
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439011"
+    },
+    "nombre": "Administrador",
+    "email": "admin@empresa.com",
+    "password": "$2a$10$GzhV69j1amsb3uD7beJlXOKvydef0ILme6D2IWKDuaEKA8VpZXMay",
+    "rol": "admin",
+    "activo": true,
+    "createdAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439012"
+    },
+    "nombre": "Carlos López",
+    "email": "carlos@empresa.com",
+    "password": "$2a$10$oJYSjw3VXyMu02wDhH6Ixu0MtPcz4tIRpJ0ElKgLuqNdmTSVlncOa",
+    "rol": "empleado",
+    "activo": true,
+    "createdAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439013"
+    },
+    "nombre": "María García",
+    "email": "maria@empresa.com",
+    "password": "$2a$10$RtzwoQkBi4OHco9NpBpc.ek2dacWMsS3oiDlmhI76coXXR5OxVmIq",
+    "rol": "empleado",
+    "activo": true,
+    "createdAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "horaInicio": "08:30",
+    "toleranciaMinutos": 15
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439014"
+    },
+    "nombre": "Juan Pérez",
+    "email": "juan@empresa.com",
+    "password": "$2a$10$Xy7UvwuTKlL5hnA3tblSG.3CvMq9XErLEz07tfUkSKYKHpZZOX4hC",
+    "rol": "empleado",
+    "activo": true,
+    "createdAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "toleranciaMinutos": 5,
+    "descuentoPorMinuto": 0.75
+  },
+  {
+    "_id": {
+      "$oid": "507f1f77bcf86cd799439015"
+    },
+    "nombre": "Ana Torres",
+    "email": "ana@empresa.com",
+    "password": "$2a$10$rPpX/K5zuH7NDye0s1572OIfsRC3KqLD7qVqAGdoghzyZv9FFJtNe",
+    "rol": "empleado",
+    "activo": true,
+    "createdAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-20T18:35:22.776Z"
+    }
+  }
+]

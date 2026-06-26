@@ -1,0 +1,96 @@
+<% titulo = 'Horarios - Admin'; %>
+<h1 class="text-2xl sm:text-3xl font-bold text-primary mb-6">Gestión de Horarios</h1>
+
+<div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 mb-6 border">
+  <form method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+    <div class="flex-1">
+      <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Seleccionar docente</label>
+      <select name="empleado_id" onchange="this.form.submit()"
+        class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+        style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <option value="">-- Selecciona un docente --</option>
+        <% empleados.forEach(function(emp) { %>
+        <option value="<%= emp._id %>" <%= empleadoId == emp._id ? 'selected' : '' %>><%= emp.nombre %> <% if (emp.area) { %>(<%= emp.area.nombre %>)<% } %></option>
+        <% }); %>
+      </select>
+    </div>
+    <% if (empleadoId) { %>
+    <a href="/admin/horarios" class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition text-center"
+      style="color: var(--color-muted); border-color: var(--color-border);">Limpiar</a>
+    <% } %>
+  </form>
+</div>
+
+<% if (empleadoSeleccionado) { %>
+<div class="card-surface rounded-2xl shadow-lg p-4 sm:p-6 border">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+    <h2 class="text-base sm:text-lg font-bold text-primary">
+      <%= empleadoSeleccionado.nombre %>
+      <% if (empleadoSeleccionado.area) { %>
+        <span class="text-sm font-normal text-muted">— <%= empleadoSeleccionado.area.nombre %></span>
+      <% } %>
+    </h2>
+  </div>
+
+  <form action="/admin/horarios" method="POST">
+    <input type="hidden" name="empleado_id" value="<%= empleadoId %>">
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+          <tr>
+            <th class="text-left py-3 px-2 sm:px-4">Día</th>
+            <% if (empleadoSeleccionado.area) { %>
+              <% var areaFranjas = empleadoSeleccionado.area.franjasPorDia; %>
+              <% var todasFranjas = []; %>
+              <% for (var d = 0; d <= 6; d++) { %>
+                <% var fs = areaFranjas ? (areaFranjas.get ? areaFranjas.get(String(d)) : areaFranjas[d]) : []; %>
+                <% fs.forEach(function(f) { if (!todasFranjas.includes(f)) todasFranjas.push(f); }); %>
+              <% } %>
+              <% todasFranjas.sort(); %>
+              <% todasFranjas.forEach(function(f) { %>
+                <th class="text-center py-3 px-1 sm:px-3 text-xs"><%= f %></th>
+              <% }); %>
+            <% } else { %>
+              <th class="text-center py-3 px-4">Sin área</th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var d = 0; d <= 6; d++) { %>
+          <tr>
+            <td class="py-3 px-2 sm:px-4 font-semibold text-primary text-xs sm:text-sm"><%= dias[d] %></td>
+            <% if (empleadoSeleccionado.area) { %>
+              <% var areaFranjas = empleadoSeleccionado.area.franjasPorDia; %>
+              <% var franjasDia = areaFranjas ? (areaFranjas.get ? areaFranjas.get(String(d)) : areaFranjas[d]) : []; %>
+              <% var hDoc = horarioDocs.find(function(h) { return h.diaSemana === d; }); %>
+              <% var franjasDoc = hDoc ? hDoc.franjas || [] : []; %>
+              <% todasFranjas.forEach(function(f) { %>
+                <% if (franjasDia.includes(f)) { %>
+                  <td class="text-center py-3 px-1 sm:px-3">
+                    <input type="checkbox" name="franjas[<%= d %>]" value="<%= f %>"
+                      <%= franjasDoc.includes(f) ? 'checked' : '' %>
+                      class="w-5 h-5 rounded-lg cursor-pointer"
+                      style="accent-color: var(--color-primary);">
+                  </td>
+                <% } else { %>
+                  <td class="text-center py-3 px-1 sm:px-3 text-muted text-xs opacity-40">—</td>
+                <% } %>
+              <% }); %>
+            <% } else { %>
+              <td class="text-center py-3 px-4 text-muted text-xs">Asigna un área primero</td>
+            <% } %>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <button type="submit" class="btn-primary font-semibold px-6 py-2.5 rounded-xl text-sm shadow-lg w-full sm:w-auto transition">
+        Guardar Horarios
+      </button>
+    </div>
+  </form>
+</div>
+<% } %>

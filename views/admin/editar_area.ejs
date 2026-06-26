@@ -1,0 +1,45 @@
+<% titulo = 'Editar Área - Admin'; %>
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center gap-3 mb-6">
+    <a href="/admin/areas" class="w-10 h-10 rounded-xl flex items-center justify-center transition font-bold" style="background-color: var(--color-surface-alt); color: var(--color-muted);">&larr;</a>
+    <h1 class="text-2xl sm:text-3xl font-bold text-primary">Editar: <%= area.nombre %></h1>
+  </div>
+
+  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border">
+    <form action="/admin/areas/<%= area._id %>" method="POST" class="space-y-6">
+      <div>
+        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre del área</label>
+        <input type="text" name="nombre" value="<%= area.nombre %>" required
+          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
+          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+      </div>
+
+      <p class="text-sm font-bold text-primary">Horarios disponibles por día</p>
+      <p class="text-xs text-muted opacity-60 mb-2">Marca las horas de entrada para cada día.</p>
+
+      <% for (var d = 0; d <= 6; d++) { %>
+      <div class="border-b pb-4 mb-4" style="border-color: var(--color-border);">
+        <p class="text-sm font-bold text-primary mb-2.5"><%= dias[d] %></p>
+        <div class="flex flex-wrap gap-2">
+          <% horas.forEach(function(h) { %>
+            <% var franjasDia = area.franjasPorDia ? (area.franjasPorDia.get ? area.franjasPorDia.get(String(d)) : area.franjasPorDia[d]) : []; %>
+            <% var checked = franjasDia && franjasDia.includes(h); %>
+            <label class="flex items-center gap-1.5 px-3 py-2 border-2 rounded-xl cursor-pointer text-sm font-medium transition <%= checked ? '' : '' %>"
+              style="<%= checked ? 'background-color: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary);' : 'background-color: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-muted);' %>">
+              <input type="checkbox" name="franjas[<%= d %>]" value="<%= h %>" <%= checked ? 'checked' : '' %>
+                class="w-4 h-4 rounded" style="accent-color: var(--color-primary);">
+              <span><%= h %></span>
+            </label>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="flex justify-end gap-3 pt-2">
+        <a href="/admin/areas" class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
+          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</a>
+        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
