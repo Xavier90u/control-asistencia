@@ -1,20 +1,26 @@
 require("express-async-errors");
 const express = require("express");
+const http = require("http");
 const session = require("express-session");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const mongoose = require("mongoose");
 const { MongoStore } = require("connect-mongo");
+const { Server } = require("socket.io");
 const { initDefaults } = require("./src/utils/timezone");
 require("dotenv").config();
 const { patchDns } = require("./src/utils/dns-patch");
 
 const fs = require("fs");
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const CSS_VERSION = fs.statSync(path.join(__dirname, "public/css/output.css")).mtimeMs;
 const MONGO_URI =
   process.env.MONGO_URI || "mongodb://localhost:27017/control-asistencia";
+
+app.set("io", io);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -28,14 +34,13 @@ async function start() {
     });
     console.log("Conectado a MongoDB");
 
-    // Eliminar índice único antiguo (empleado + fecha) que bloquea multi-turno
     try {
       const col = mongoose.connection.collection("asistencias");
       const indexes = await col.indexes();
       const oldIdx = indexes.find((i) => i.key?.empleado && i.key?.fecha && i.unique);
       if (oldIdx) {
         await col.dropIndex(oldIdx.name);
-        console.log("Índice único obsoleto eliminado:", oldIdx.name);
+        console.log("Indice unico obsoleto eliminado:", oldIdx.name);
       }
     } catch (_) { /* ignore */ }
 
@@ -48,7 +53,7 @@ async function start() {
 
   app.use(
     session({
-      secret: process.env.SESSION_SECRET,
+      secret: process.env.SESSION_SECRET || "asistencia-secret-change-me",
       resave: false,
       saveUninitialized: false,
       cookie: { maxAge: 8 * 60 * 60 * 1000 },
@@ -57,6 +62,22 @@ async function start() {
       }),
     })
   );
+
+  io.use((socket, next) => {
+    const cookieHeader = socket.handshake.headers.cookie || "";
+    const match = cookieHeader.match(/connect\.sid=s%3A([^;]+)/);
+    if (!match) return next(new Error("No session"));
+    next();
+  });
+
+  io.on("connection", (socket) => {
+    socket.on("join-admin", () => {
+      socket.join("admin-room");
+    });
+    socket.on("join-empleado", (empleadoId) => {
+      socket.join("empleado-" + empleadoId);
+    });
+  });
 
   app.use(express.static(path.join(__dirname, "public")));
   app.set("view engine", "ejs");
@@ -80,7 +101,7 @@ async function start() {
     res.redirect("/empleado");
   });
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
   });
 }

@@ -6,6 +6,7 @@ const {
   tardanzasView, configView, updateConfig, seedData,
   areasView, createArea, editAreaForm, updateArea, deleteArea,
   horariosView, updateHorarios,
+  notificacionesAPI, marcarLeidas,
 } = require("../controllers/adminController");
 
 router.use(requireAdmin);
@@ -20,6 +21,10 @@ router.get("/tardanzas", tardanzasView);
 router.get("/config", configView);
 router.post("/config", updateConfig);
 router.post("/seed", seedData);
+
+// Notificaciones
+router.get("/notificaciones", notificacionesAPI);
+router.post("/notificaciones/leer", marcarLeidas);
 
 // Areas
 router.get("/areas", areasView);

@@ -1,0 +1,42 @@
+<% titulo = 'Mi QR'; %>
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-5">
+    <h1 class="text-xl font-bold text-gray-800 dark:text-white">Mi C\u00f3digo QR</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Escanea para marcar tu asistencia</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm text-center">
+    <div class="mb-4">
+      <img src="<%= qrDataUrl %>" alt="QR Code" class="mx-auto rounded-xl border border-gray-100 dark:border-gray-800" width="250" height="250">
+    </div>
+    <p class="text-gray-500 dark:text-gray-400 text-xs mb-4">V\u00e1lido por 24 horas</p>
+
+    <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-4">
+      <p class="text-gray-600 dark:text-gray-300 text-xs font-semibold mb-2">C\u00f3mo usarlo:</p>
+      <div class="text-left text-xs text-gray-500 dark:text-gray-400 space-y-1.5">
+        <p>1. Guarda esta imagen en tu celular</p>
+        <p>2. Al llegar, abre tu c\u00e1mara</p>
+        <p>3. Escanea el c\u00f3digo QR</p>
+        <p>4. Selecciona tu franja y marca</p>
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <a href="/empleado" class="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-2.5 rounded-xl text-sm font-medium transition hover:bg-gray-200 dark:hover:bg-gray-700 text-center">
+        Marcar aqu\u00ed
+      </a>
+      <button onclick="guardarQR()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-sm font-semibold transition">
+        Guardar imagen
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function guardarQR() {
+  var link = document.createElement('a');
+  link.download = 'qr-asistencia.png';
+  link.href = '<%= qrDataUrl %>';
+  link.click();
+}
+</script>

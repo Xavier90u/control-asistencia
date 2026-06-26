@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
+const Notificacion = require("../models/Notificacion");
 const Configuracion = require("../models/Configuracion");
 const Horario = require("../models/Horario");
 const Area = require("../models/Area");
@@ -14,7 +15,34 @@ async function dashboard(req, res) {
   const tardanzasHoy = await Asistencia.countDocuments({ fecha: hoy, minutosRetraso: { $gt: 0 } });
   const config = await getConfigMap();
   const tzCfg = await tz.getConfig();
-  res.render("admin/dashboard", { totalEmpleados, asistenciasHoy, tardanzasHoy, config: { ...config, ...tzCfg } });
+
+  const notificaciones = await Notificacion.find({ leida: false })
+    .populate("empleado", "nombre")
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .lean();
+  const noLeidas = await Notificacion.countDocuments({ leida: false });
+
+  res.render("admin/dashboard", {
+    totalEmpleados, asistenciasHoy, tardanzasHoy,
+    config: { ...config, ...tzCfg },
+    notificaciones, noLeidas,
+  });
+}
+
+async function notificacionesAPI(req, res) {
+  const notificaciones = await Notificacion.find()
+    .populate("empleado", "nombre")
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .lean();
+  const noLeidas = await Notificacion.countDocuments({ leida: false });
+  res.json({ notificaciones, noLeidas });
+}
+
+async function marcarLeidas(req, res) {
+  await Notificacion.updateMany({ leida: false }, { leida: true });
+  res.json({ ok: true });
 }
 
 async function listEmpleados(req, res) {

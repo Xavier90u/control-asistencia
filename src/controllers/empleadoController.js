@@ -1,8 +1,11 @@
+const QRCode = require("qrcode");
 const Usuario = require("../models/Usuario");
 const Asistencia = require("../models/Asistencia");
+const Notificacion = require("../models/Notificacion");
 const Configuracion = require("../models/Configuracion");
 const tz = require("../utils/timezone");
 const horario = require("../utils/horario");
+const { generarTokenQR, verificarTokenQR } = require("../utils/qr");
 
 async function marcacionView(req, res) {
   const mongoose = require("mongoose");
@@ -59,27 +62,23 @@ async function marcar(req, res) {
   const fechaStr = tz.todayStr();
   const horaStr = tz.timeStr();
 
-  // Validar que la franja existe para hoy
   const franjasHoy = await horario.getFranjasHoy(empleadoId);
   if (!franjasHoy.includes(franja)) {
     return res.redirect("/empleado?error=Esta franja no est\u00e1 disponible hoy");
   }
 
-  // Validar que no haya marcado ya esta franja hoy
   const yaMarcada = await Asistencia.findOne({ empleado: empleadoId, fecha: fechaStr, franja });
   if (yaMarcada) {
     return res.redirect("/empleado?error=Ya marcaste esta franja hoy");
   }
 
-  // Regla de 10 minutos
   const minActual = tz.horasToMinutes(horaStr);
   const minFranja = tz.horasToMinutes(franja);
   if (minActual < minFranja - 10) {
     const esperar = tz.minutosToStr(minFranja - 10);
-    return res.redirect(`/empleado?error=Aún no puedes marcar para las ${franja}. Vuelve a las ${esperar}`);
+    return res.redirect(`/empleado?error=A\u00fan no puedes marcar para las ${franja}. Vuelve a las ${esperar}`);
   }
 
-  // Calcular retraso
   const tolerancia = empleado.toleranciaMinutos ?? parseInt((await getConfigMap()).tolerancia_general || "10");
   const minutosRetraso = Math.max(0, minActual - (minFranja + tolerancia));
 
@@ -88,14 +87,154 @@ async function marcar(req, res) {
     minutosRetraso, franja, latitud: lat ? parseFloat(lat) : undefined, longitud: lng ? parseFloat(lng) : undefined,
   });
 
-  let msg;
-  if (minutosRetraso > 0) {
-    msg = `Franja ${franja} registrada con ${minutosRetraso} min de retraso`;
-  } else {
-    msg = `Franja ${franja} registrada a tiempo`;
+  const tipo = minutosRetraso > 0 ? "retraso" : "marcacion";
+  const msg = minutosRetraso > 0
+    ? `${empleado.nombre} marc\u00f3 las ${franja} con ${minutosRetraso} min de retraso`
+    : `${empleado.nombre} marc\u00f3 las ${franja} a tiempo`;
+
+  await Notificacion.create({
+    empleado: empleadoId, tipo, mensaje: msg, fecha: fechaStr, hora: horaStr,
+  });
+
+  const io = req.app.get("io");
+  if (io) {
+    io.to("admin-room").emit("nueva-notificacion", {
+      empleado: empleado.nombre,
+      tipo,
+      mensaje: msg,
+      fecha: fechaStr,
+      hora: horaStr,
+    });
   }
 
-  res.redirect(`/empleado?success=${encodeURIComponent(msg)}`);
+  let redirectMsg;
+  if (minutosRetraso > 0) {
+    redirectMsg = `Franja ${franja} registrada con ${minutosRetraso} min de retraso`;
+  } else {
+    redirectMsg = `Franja ${franja} registrada a tiempo`;
+  }
+
+  res.redirect(`/empleado?success=${encodeURIComponent(redirectMsg)}`);
+}
+
+async function qrView(req, res) {
+  const mongoose = require("mongoose");
+  const userId = new mongoose.Types.ObjectId(req.session.user.id);
+  const empleado = await Usuario.findById(userId).lean();
+
+  const token = generarTokenQR(userId.toString());
+  const qrDataUrl = await QRCode.toDataURL(token, {
+    width: 300,
+    margin: 2,
+    color: { dark: "#1e293b", light: "#ffffff" },
+  });
+
+  res.render("empleado/qr", { empleado, qrDataUrl, token });
+}
+
+async function marcarQRForm(req, res) {
+  const { token } = req.query;
+  if (!token) return res.redirect("/login?error=Token QR inv\u00e1lido");
+
+  const payload = verificarTokenQR(token);
+  if (!payload) return res.redirect("/login?error=Token QR expirado o inv\u00e1lido");
+
+  const empleadoId = payload.emp;
+  const empleado = await Usuario.findById(empleadoId).lean();
+  if (!empleado) return res.redirect("/login?error=Empleado no encontrado");
+
+  const fechaStr = tz.todayStr();
+  const config = await getConfigMap();
+  const tzCfg = await tz.getConfig();
+
+  const franjasHoy = await horario.getFranjasHoy(empleadoId);
+  const marcacionesHoy = await Asistencia.find({ empleado: empleadoId, fecha: fechaStr }).lean();
+  const marcadas = new Set(marcacionesHoy.map((m) => m.franja));
+
+  const now = tz.now();
+  const minActual = tz.horasToMinutes(now.format("HH:mm"));
+
+  const franjasConEstado = franjasHoy.map((f) => {
+    const minFranja = tz.horasToMinutes(f);
+    const disponible = minActual >= minFranja - 10;
+    const marcada = marcadas.has(f);
+    return { franja: f, marcada, disponible };
+  });
+
+  const todosMarcados = franjasConEstado.every((f) => f.marcada);
+
+  res.render("empleado/marcar-qr", {
+    empleado,
+    franjas: franjasConEstado,
+    todosMarcados,
+    token,
+    config: { ...config, ...tzCfg },
+  });
+}
+
+async function marcarPorQR(req, res) {
+  const { token, franja } = req.body;
+  if (!token || !franja) return res.redirect("/login?error=Faltan datos");
+
+  const payload = verificarTokenQR(token);
+  if (!payload) return res.redirect("/login?error=Token QR expirado o inv\u00e1lido");
+
+  const empleadoId = payload.emp;
+  const empleado = await Usuario.findById(empleadoId).lean();
+  if (!empleado) return res.redirect("/login?error=Empleado no encontrado");
+
+  const fechaStr = tz.todayStr();
+  const horaStr = tz.timeStr();
+
+  const franjasHoy = await horario.getFranjasHoy(empleadoId);
+  if (!franjasHoy.includes(franja)) {
+    return res.redirect(`/empleado/marcar-qr?token=${token}&error=Franja no disponible`);
+  }
+
+  const yaMarcada = await Asistencia.findOne({ empleado: empleadoId, fecha: fechaStr, franja });
+  if (yaMarcada) {
+    return res.redirect(`/empleado/marcar-qr?token=${token}&error=Ya marcaste esta franja`);
+  }
+
+  const minActual = tz.horasToMinutes(horaStr);
+  const minFranja = tz.horasToMinutes(franja);
+  if (minActual < minFranja - 10) {
+    const esperar = tz.minutosToStr(minFranja - 10);
+    return res.redirect(`/empleado/marcar-qr?token=${token}&error=Vuelve a las ${esperar}`);
+  }
+
+  const tolerancia = empleado.toleranciaMinutos ?? parseInt((await getConfigMap()).tolerancia_general || "10");
+  const minutosRetraso = Math.max(0, minActual - (minFranja + tolerancia));
+
+  await Asistencia.create({
+    empleado: empleadoId, fecha: fechaStr, horaMarcacion: horaStr, horaEsperada: franja,
+    minutosRetraso, franja,
+  });
+
+  const tipo = minutosRetraso > 0 ? "retraso" : "marcacion";
+  const msg = minutosRetraso > 0
+    ? `${empleado.nombre} marc\u00f3 las ${franja} con ${minutosRetraso} min de retraso`
+    : `${empleado.nombre} marc\u00f3 las ${franja} a tiempo`;
+
+  await Notificacion.create({
+    empleado: empleadoId, tipo, mensaje: msg, fecha: fechaStr, hora: horaStr,
+  });
+
+  const io = req.app.get("io");
+  if (io) {
+    io.to("admin-room").emit("nueva-notificacion", {
+      empleado: empleado.nombre, tipo, mensaje: msg, fecha: fechaStr, hora: horaStr,
+    });
+  }
+
+  let resultMsg;
+  if (minutosRetraso > 0) {
+    resultMsg = `Marcado con ${minutosRetraso} min de retraso`;
+  } else {
+    resultMsg = "Marcado a tiempo";
+  }
+
+  res.render("empleado/marcar-qr-exito", { empleado, franja, resultMsg, minutosRetraso });
 }
 
 async function historialView(req, res) {
@@ -121,7 +260,7 @@ async function historialView(req, res) {
     viernes.setDate(lunes.getDate() + 4);
     const semanaKey = lunes.toISOString().split("T")[0];
     const semanaLabel = `${lunes.getDate()}/${lunes.getMonth()+1} - ${viernes.getDate()}/${viernes.getMonth()+1}, ${viernes.getFullYear()}`;
-    const diaLabel = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"][diaSemana];
+    const diaLabel = ["Dom","Lun","Mar","Mi\u00e9","Jue","Vie","S\u00e1b"][diaSemana];
 
     return {
       ...r,
@@ -131,7 +270,7 @@ async function historialView(req, res) {
       semanaKey,
       semanaLabel,
       diaLabel,
-      diaNombre: ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"][diaSemana],
+      diaNombre: ["Domingo","Lunes","Martes","Mi\u00e9rcoles","Jueves","Viernes","S\u00e1bado"][diaSemana],
     };
   });
 
@@ -170,4 +309,4 @@ async function getConfigMap() {
   return map;
 }
 
-module.exports = { marcacionView, marcar, historialView };
+module.exports = { marcacionView, marcar, qrView, marcarQRForm, marcarPorQR, historialView };
