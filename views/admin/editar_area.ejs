@@ -1,44 +1,41 @@
 <% titulo = 'Editar Área - Admin'; %>
-<div class="max-w-4xl mx-auto">
-  <div class="flex items-center gap-3 mb-6">
-    <a href="/admin/areas" class="w-10 h-10 rounded-xl flex items-center justify-center transition font-bold" style="background-color: var(--color-surface-alt); color: var(--color-muted);">&larr;</a>
-    <h1 class="text-2xl sm:text-3xl font-bold text-primary">Editar: <%= area.nombre %></h1>
+<div class="max-w-2xl mx-auto">
+  <div class="flex items-center gap-2 mb-4">
+    <a href="/admin/areas" class="w-9 h-9 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-200 transition font-bold text-sm">&larr;</a>
+    <h1 class="text-xl font-bold text-gray-800 dark:text-white">Editar: <%= area.nombre %></h1>
   </div>
 
-  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border">
-    <form action="/admin/areas/<%= area._id %>" method="POST" class="space-y-6">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+    <form action="/admin/areas/<%= area._id %>" method="POST" class="space-y-5">
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre del área</label>
-        <input type="text" name="nombre" value="<%= area.nombre %>" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Nombre del área</label>
+        <input type="text" name="nombre" value="<%= area.nombre %>" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
 
-      <p class="text-sm font-bold text-primary">Horarios disponibles por día</p>
-      <p class="text-xs text-muted opacity-60 mb-2">Marca las horas de entrada para cada día.</p>
+      <div>
+        <p class="text-sm font-bold text-gray-800 dark:text-white mb-1">Horarios por día</p>
+        <p class="text-[11px] text-gray-400 mb-3">Marca las horas de entrada.</p>
 
-      <% for (var d = 0; d <= 6; d++) { %>
-      <div class="border-b pb-4 mb-4" style="border-color: var(--color-border);">
-        <p class="text-sm font-bold text-primary mb-2.5"><%= dias[d] %></p>
-        <div class="flex flex-wrap gap-2">
-          <% horas.forEach(function(h) { %>
-            <% var franjasDia = area.franjasPorDia ? (area.franjasPorDia.get ? area.franjasPorDia.get(String(d)) : area.franjasPorDia[d]) : []; %>
-            <% var checked = franjasDia && franjasDia.includes(h); %>
-            <label class="flex items-center gap-1.5 px-3 py-2 border-2 rounded-xl cursor-pointer text-sm font-medium transition <%= checked ? '' : '' %>"
-              style="<%= checked ? 'background-color: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary);' : 'background-color: var(--color-surface-alt); border-color: var(--color-border); color: var(--color-muted);' %>">
-              <input type="checkbox" name="franjas[<%= d %>]" value="<%= h %>" <%= checked ? 'checked' : '' %>
-                class="w-4 h-4 rounded" style="accent-color: var(--color-primary);">
-              <span><%= h %></span>
-            </label>
-          <% }); %>
+        <% for (var d = 0; d <= 6; d++) { %>
+        <div class="border-b border-gray-100 dark:border-gray-800 pb-3 mb-3">
+          <p class="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2"><%= dias[d] %></p>
+          <div class="flex flex-wrap gap-1.5">
+            <% horas.forEach(function(h) { %>
+              <% var franjasDia = area.franjasPorDia ? (area.franjasPorDia.get ? area.franjasPorDia.get(String(d)) : area.franjasPorDia[d]) : []; %>
+              <% var checked = franjasDia && franjasDia.includes(h); %>
+              <label class="flex items-center gap-1 px-2.5 py-1.5 border rounded-lg cursor-pointer text-xs font-medium transition <%= checked ? 'bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400' %>">
+                <input type="checkbox" name="franjas[<%= d %>]" value="<%= h %>" <%= checked ? 'checked' : '' %> class="w-3.5 h-3.5 rounded">
+                <span><%= h %></span>
+              </label>
+            <% }); %>
+          </div>
         </div>
+        <% } %>
       </div>
-      <% } %>
 
-      <div class="flex justify-end gap-3 pt-2">
-        <a href="/admin/areas" class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
-          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</a>
-        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Guardar Cambios</button>
+      <div class="flex justify-end gap-2">
+        <a href="/admin/areas" class="px-4 py-2.5 text-gray-500 border border-gray-300 dark:border-gray-700 rounded-xl text-sm transition">Cancelar</a>
+        <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">Guardar</button>
       </div>
     </form>
   </div>

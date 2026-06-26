@@ -1,64 +1,49 @@
 <% titulo = 'Editar Empleado'; %>
-<div class="max-w-lg mx-auto">
-  <div class="flex items-center gap-3 mb-6">
-    <a href="/admin/empleados" class="w-10 h-10 rounded-xl flex items-center justify-center transition font-bold" style="background-color: var(--color-surface-alt); color: var(--color-muted);">&larr;</a>
-    <h1 class="text-2xl sm:text-3xl font-bold text-primary">Editar Empleado</h1>
+<div class="max-w-md mx-auto">
+  <div class="flex items-center gap-2 mb-4">
+    <a href="/admin/empleados" class="w-9 h-9 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-200 transition font-bold text-sm">&larr;</a>
+    <h1 class="text-xl font-bold text-gray-800 dark:text-white">Editar Empleado</h1>
   </div>
-  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border">
-    <form action="/admin/empleados/<%= empleado.id %>/editar" method="POST" class="space-y-4">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+    <form action="/admin/empleados/<%= empleado.id %>/editar" method="POST" class="space-y-3">
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre completo</label>
-        <input type="text" name="nombre" value="<%= empleado.nombre %>" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Nombre</label>
+        <input type="text" name="nombre" value="<%= empleado.nombre %>" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Email</label>
-        <input type="email" name="email" value="<%= empleado.email %>" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Email</label>
+        <input type="email" name="email" value="<%= empleado.email %>" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Contraseña <span class="font-normal text-xs opacity-60">(dejar vacío para no cambiar)</span></label>
-        <input type="password" name="password"
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Contraseña <span class="font-normal opacity-60">(vacío = no cambiar)</span></label>
+        <input type="password" name="password" class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Área / Carrera</label>
-        <select name="area"
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Área</label>
+        <select name="area" class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
           <option value="">Sin área</option>
           <% areas.forEach(function(a) { %>
           <option value="<%= a._id %>" <%= empleado.area && empleado.area.toString() === a._id.toString() ? 'selected' : '' %>><%= a.nombre %></option>
           <% }); %>
         </select>
       </div>
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-3 gap-2">
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Hora inicio</label>
-          <input type="time" name="hora_inicio" value="<%= empleado.hora_inicio || '' %>"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Hora</label>
+          <input type="time" name="hora_inicio" value="<%= empleado.hora_inicio || '' %>" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Tolerancia</label>
-          <input type="number" name="tolerancia_minutos" min="0" value="<%= empleado.toleranciaMinutos !== null && empleado.toleranciaMinutos !== undefined ? empleado.toleranciaMinutos : '' %>"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Toler.</label>
+          <input type="number" name="tolerancia_minutos" min="0" value="<%= empleado.toleranciaMinutos != null ? empleado.toleranciaMinutos : '' %>" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Dto. x min</label>
-          <input type="number" step="0.01" min="0" name="descuento_por_minuto" value="<%= empleado.descuentoPorMinuto !== null && empleado.descuentoPorMinuto !== undefined ? empleado.descuentoPorMinuto : '' %>"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Dto/min</label>
+          <input type="number" step="0.01" min="0" name="descuento_por_minuto" value="<%= empleado.descuentoPorMinuto != null ? empleado.descuentoPorMinuto : '' %>" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
       </div>
-      <div class="flex justify-end gap-3 pt-4 border-t" style="border-color: var(--color-border);">
-        <a href="/admin/empleados" class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
-          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</a>
-        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Guardar Cambios</button>
+      <div class="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <a href="/admin/empleados" class="px-4 py-2.5 text-gray-500 border border-gray-300 dark:border-gray-700 rounded-xl text-sm transition">Cancelar</a>
+        <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">Guardar</button>
       </div>
     </form>
   </div>

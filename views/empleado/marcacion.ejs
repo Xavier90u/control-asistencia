@@ -1,112 +1,107 @@
 <% titulo = 'Marcar Entrada'; %>
-<div class="max-w-lg mx-auto">
-  <div class="text-center mb-6">
-    <h1 class="text-2xl sm:text-3xl font-bold text-primary">Marcar Entrada</h1>
-    <p class="text-muted text-sm mt-1">Bienvenido, <%= user.nombre %></p>
+<div class="max-w-md mx-auto">
+  <div class="text-center mb-5">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Marcar Entrada</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Bienvenido, <%= user.nombre %></p>
   </div>
 
-  <div class="card-surface rounded-2xl shadow-xl p-5 sm:p-6 border">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-5 border border-gray-100 dark:border-gray-800">
     <% if (todosMarcados) { %>
       <div class="text-center py-4">
-        <div class="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center text-4xl">✅</div>
-        <h2 class="text-xl font-bold text-green-600 mb-4">Todos los turnos registrados</h2>
+        <div class="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-3xl">✅</div>
+        <h2 class="text-lg font-bold text-green-600 dark:text-green-400 mb-3">Todos los turnos registrados</h2>
         <% franjas.forEach(function(f) { %>
-          <div class="bg-green-50 border border-green-200 rounded-xl p-3 mb-2 text-left flex justify-between items-center">
-            <span class="font-semibold text-primary"><%= f.franja %></span>
-            <span class="text-green-600 text-sm font-medium">✅ Marcado</span>
+          <div class="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-3 mb-2 flex justify-between items-center">
+            <span class="font-semibold text-gray-700 dark:text-gray-200 text-sm"><%= f.franja %></span>
+            <span class="text-green-600 dark:text-green-400 text-xs font-medium">✅ Marcado</span>
           </div>
         <% }); %>
-        <p class="text-muted text-sm mt-5">Completaste todos tus turnos hoy. Vuelve mañana.</p>
+        <p class="text-gray-400 dark:text-gray-500 text-xs mt-4">Vuelve mañana.</p>
       </div>
     <% } else if (franjas.length === 0) { %>
-      <div class="text-center py-10">
-        <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl" style="background-color: var(--color-primary-light);">📅</div>
-        <p class="text-muted font-medium">No tienes turnos asignados para hoy</p>
-        <p class="text-muted text-sm mt-2 opacity-60">Consulta con el administrador</p>
+      <div class="text-center py-8">
+        <div class="w-14 h-14 mx-auto mb-3 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-2xl">📅</div>
+        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Sin turnos para hoy</p>
+        <p class="text-gray-400 dark:text-gray-500 text-xs mt-1">Consulta con el administrador</p>
       </div>
     <% } else { %>
-      <div class="text-center mb-6">
-        <div class="text-4xl sm:text-5xl font-bold text-primary mb-1 font-mono tracking-wider" id="reloj"></div>
-        <p class="text-muted text-sm" id="fecha"></p>
+      <div class="text-center mb-5">
+        <div class="text-4xl font-bold text-gray-800 dark:text-white font-mono tracking-wider" id="reloj"></div>
+        <p class="text-gray-500 dark:text-gray-400 text-xs mt-1" id="fecha"></p>
       </div>
 
-      <div class="space-y-3 mb-6">
+      <div class="space-y-2.5 mb-5">
         <% franjas.forEach(function(f) { %>
           <% if (f.marcada) { %>
-            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4 flex justify-between items-center">
+            <div class="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-xl p-3.5 flex justify-between items-center">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-lg">✓</div>
+                <div class="w-9 h-9 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-sm">✓</div>
                 <div>
-                  <span class="font-bold text-primary text-lg"><%= f.franja %></span>
-                  <p class="text-green-600 text-xs">Turno completado</p>
+                  <span class="font-bold text-gray-800 dark:text-white text-sm"><%= f.franja %></span>
+                  <p class="text-green-600 dark:text-green-400 text-[11px]">Completado</p>
                 </div>
               </div>
-              <span class="text-green-600 font-semibold text-sm bg-green-100 px-3 py-1 rounded-full">OK</span>
+              <span class="text-green-600 dark:text-green-400 font-bold text-xs bg-green-100 dark:bg-green-900 px-2.5 py-0.5 rounded-full">OK</span>
             </div>
           <% } else if (f.disponible) { %>
-            <div class="border-2 rounded-xl p-4 flex justify-between items-center" style="background-color: var(--color-primary-light); border-color: var(--color-primary);">
+            <div class="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-xl p-3.5 flex justify-between items-center">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background-color: var(--color-primary); color: #fff;">🕐</div>
+                <div class="w-9 h-9 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">🕐</div>
                 <div>
-                  <span class="font-bold text-primary text-lg"><%= f.franja %></span>
-                  <p class="text-primary text-xs">Listo para marcar</p>
+                  <span class="font-bold text-gray-800 dark:text-white text-sm"><%= f.franja %></span>
+                  <p class="text-blue-600 dark:text-blue-400 text-[11px]">Listo para marcar</p>
                 </div>
               </div>
-              <form action="/empleado/marcar" method="POST" class="inline">
+              <form action="/empleado/marcar" method="POST">
                 <input type="hidden" name="franja" value="<%= f.franja %>">
-                <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg transition">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition">
                   MARCAR
                 </button>
               </form>
             </div>
           <% } else { %>
-            <div class="card-surface border-2 rounded-xl p-4 flex justify-between items-center opacity-50" style="border-color: var(--color-border);">
+            <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3.5 flex justify-between items-center opacity-50">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg" style="background-color: var(--color-surface-alt); color: var(--color-muted);">🔒</div>
+                <div class="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-400 text-sm">🔒</div>
                 <div>
-                  <span class="font-bold text-primary text-lg opacity-60"><%= f.franja %></span>
-                  <p class="text-muted text-xs">Disponible desde <strong><%= (() => {
-                    var partes = f.franja.split(':');
-                    var h = parseInt(partes[0]);
-                    var m = parseInt(partes[1]) - 10;
+                  <span class="font-bold text-gray-500 dark:text-gray-400 text-sm"><%= f.franja %></span>
+                  <p class="text-gray-400 dark:text-gray-500 text-[11px]">Desde <strong><%= (() => {
+                    var p = f.franja.split(':');
+                    var h = parseInt(p[0]), m = parseInt(p[1]) - 10;
                     if (m < 0) { h--; m += 60; }
                     return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
                   })() %></strong></p>
                 </div>
               </div>
-              <span class="text-muted text-xs px-3 py-1 rounded-full" style="background-color: var(--color-surface-alt);">Bloqueado</span>
+              <span class="text-gray-400 text-[11px] bg-gray-200 dark:bg-gray-700 px-2.5 py-0.5 rounded-full">Bloqueado</span>
             </div>
           <% } %>
         <% }); %>
       </div>
 
       <% if (typeof retraso !== 'undefined' && retraso) { %>
-      <div class="bg-amber-50 border border-amber-200 text-amber-700 p-4 rounded-xl mb-4 text-sm text-center flex items-center justify-center gap-2">
-        <span>⚠️</span> Registraste con <strong><%= retraso %> min</strong> de retraso
+      <div class="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 p-3 rounded-xl text-sm text-center">
+        ⚠️ <strong><%= retraso %> min</strong> de retraso
       </div>
       <% } %>
     <% } %>
 
-    <div class="mt-6 text-center border-t pt-4" style="border-color: var(--color-border);">
-      <a href="/empleado/historial" class="text-primary text-sm font-medium">📋 Ver mi historial →</a>
+    <div class="mt-5 text-center border-t border-gray-100 dark:border-gray-800 pt-4">
+      <a href="/empleado/historial" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">📋 Ver historial →</a>
     </div>
   </div>
 </div>
 
 <script>
 function actualizarReloj() {
-  const ahora = new Date();
-  const h = String(ahora.getHours()).padStart(2, '0');
-  const m = String(ahora.getMinutes()).padStart(2, '0');
-  const s = String(ahora.getSeconds()).padStart(2, '0');
-  const el = document.getElementById('reloj');
-  if (el) el.textContent = h + ':' + m + ':' + s;
-  const fechaEl = document.getElementById('fecha');
-  if (fechaEl) {
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    fechaEl.textContent = ahora.toLocaleDateString('es-PE', opciones);
-  }
+  var a = new Date();
+  var h = String(a.getHours()).padStart(2,'0');
+  var m = String(a.getMinutes()).padStart(2,'0');
+  var s = String(a.getSeconds()).padStart(2,'0');
+  var el = document.getElementById('reloj');
+  if (el) el.textContent = h+':'+m+':'+s;
+  var f = document.getElementById('fecha');
+  if (f) f.textContent = a.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 }
-actualizarReloj();
-setInterval(actualizarReloj, 1000);
+actualizarReloj(); setInterval(actualizarReloj, 1000);
 </script>

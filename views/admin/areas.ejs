@@ -1,69 +1,65 @@
 <% titulo = 'Áreas - Admin'; %>
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-  <h1 class="text-2xl sm:text-3xl font-bold text-primary">Áreas / Carreras</h1>
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-xl font-bold text-gray-800 dark:text-white">Áreas / Carreras</h1>
   <button onclick="document.getElementById('modalArea').classList.remove('hidden')"
-    class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg w-full sm:w-auto transition">
-    + Nueva Área
+    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+    + Nueva
   </button>
 </div>
 
-<div class="card-surface rounded-2xl shadow-lg overflow-hidden border">
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
   <div class="overflow-x-auto mobile-card-table">
     <table class="w-full text-sm">
-      <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+      <thead class="bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 uppercase text-[11px]">
         <tr>
-          <th class="text-left py-3 px-3 sm:px-4">Nombre</th>
-          <th class="text-left py-3 px-3 sm:px-4 hidden md:table-cell">Franjas disponibles</th>
-          <th class="text-center py-3 px-3 sm:px-4">Acciones</th>
+          <th class="text-left py-2.5 px-3">Nombre</th>
+          <th class="text-left py-2.5 px-3 hidden md:table-cell">Franjas</th>
+          <th class="text-center py-2.5 px-3">Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
         <% areas.forEach(function(a) { %>
-        <tr>
-          <td class="py-3 px-3 sm:px-4 font-semibold text-primary" data-label="Nombre"><%= a.nombre %></td>
-          <td class="py-3 px-3 sm:px-4 text-muted text-xs hidden md:table-cell">
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+          <td class="py-2.5 px-3 font-semibold text-gray-800 dark:text-white text-sm" data-label="Nombre"><%= a.nombre %></td>
+          <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 text-[11px] hidden md:table-cell">
             <% var dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']; %>
             <% for (var d = 0; d <= 6; d++) { %>
               <% var fs = a.franjasPorDia ? (a.franjasPorDia.get ? a.franjasPorDia.get(String(d)) : a.franjasPorDia[d]) : []; %>
               <% if (fs && fs.length > 0) { %>
-                <span class="inline-block rounded-lg px-2 py-0.5 mr-1 mb-1" style="background-color: var(--color-surface-alt);"><%= dias[d] %>: <%= fs.join(', ') %></span>
+                <span class="inline-block bg-gray-100 dark:bg-gray-800 rounded-lg px-1.5 py-0.5 mr-1 mb-0.5"><%= dias[d] %>: <%= fs.join(', ') %></span>
               <% } %>
             <% } %>
           </td>
-          <td class="text-center py-3 px-3 sm:px-4" data-label="Acciones">
-            <div class="flex justify-center gap-1 sm:gap-2">
-              <a href="/admin/areas/<%= a._id %>/editar" class="text-primary px-2.5 py-1 rounded-lg text-xs font-semibold transition hover:opacity-80" style="background-color: var(--color-primary-light);">Editar</a>
-              <form action="/admin/areas/<%= a._id %>/delete" method="POST" class="inline" onsubmit="return confirm('¿Eliminar esta área?')">
-                <button type="submit" class="text-red-600 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg text-xs font-semibold transition">Eliminar</button>
+          <td class="text-center py-2.5 px-3" data-label="Acciones">
+            <div class="flex justify-center gap-1">
+              <a href="/admin/areas/<%= a._id %>/editar" class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-lg text-[11px] font-semibold transition">Editar</a>
+              <form action="/admin/areas/<%= a._id %>/delete" method="POST" class="inline" onsubmit="return confirm('¿Eliminar?')">
+                <button type="submit" class="text-red-600 bg-red-50 dark:bg-red-950 px-2 py-1 rounded-lg text-[11px] font-semibold transition">Eliminar</button>
               </form>
             </div>
           </td>
         </tr>
         <% }) %>
         <% if (areas.length === 0) { %>
-        <tr><td colspan="3" class="text-center py-10 text-muted">No hay áreas registradas</td></tr>
+        <tr><td colspan="3" class="text-center py-8 text-gray-400 text-sm">No hay áreas</td></tr>
         <% } %>
       </tbody>
     </table>
   </div>
 </div>
 
-<div id="modalArea" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-  <div class="card-surface rounded-2xl shadow-2xl w-full max-w-md p-5 border">
-    <h2 class="text-lg font-bold text-primary mb-4">Nueva Área</h2>
-    <form action="/admin/areas" method="POST" class="space-y-4">
+<div id="modalArea" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+  <div class="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md p-4 border border-gray-100 dark:border-gray-800">
+    <h2 class="text-base font-bold text-gray-800 dark:text-white mb-3">Nueva Área</h2>
+    <form action="/admin/areas" method="POST" class="space-y-3">
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre del área o carrera</label>
-        <input type="text" name="nombre" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Nombre</label>
+        <input type="text" name="nombre" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
-      <p class="text-xs text-muted opacity-60">Después de crear el área, podrás configurar las franjas horarias.</p>
-      <div class="flex justify-end gap-3 pt-2">
-        <button type="button" onclick="document.getElementById('modalArea').classList.add('hidden')"
-          class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
-          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</button>
-        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Crear</button>
+      <p class="text-[11px] text-gray-400">Configura las franjas después de crear.</p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('modalArea').classList.add('hidden')" class="px-4 py-2.5 text-gray-500 border border-gray-300 dark:border-gray-700 rounded-xl text-sm transition">Cancelar</button>
+        <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">Crear</button>
       </div>
     </form>
   </div>

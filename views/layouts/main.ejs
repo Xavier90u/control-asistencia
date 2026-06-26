@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="" data-palette="blue">
+<html lang="es" class="">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,161 +7,104 @@
   <link rel="stylesheet" href="/css/output.css?v=<%= CSS_VERSION %>">
   <script>
     (function() {
-      var theme = localStorage.getItem('theme');
-      var palette = localStorage.getItem('palette') || 'blue';
-      document.documentElement.setAttribute('data-palette', palette);
-      if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       }
     })();
   </script>
   <style>
-    .theme-toggle { position: relative; width: 56px; height: 28px; border-radius: 14px; cursor: pointer; transition: background 0.3s; background: var(--toggle-bg); }
-    .dark .theme-toggle { background: var(--toggle-bg-dark); }
-    .theme-toggle .knob { position: absolute; top: 2px; width: 24px; height: 24px; border-radius: 50%; transition: transform 0.3s, background 0.3s; display: flex; align-items: center; justify-content: center; font-size: 14px; background: var(--toggle-knob); }
-    .dark .theme-toggle .knob { background: var(--toggle-knob-dark); }
-    .theme-toggle.day .knob { left: 2px; transform: translateX(0); }
-    .theme-toggle.night .knob { left: 2px; transform: translateX(28px); }
-    .palette-btn { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
-    .palette-btn:hover { transform: scale(1.15); }
-    .palette-btn.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,0.2); }
-    @media (max-width: 640px) {
-      .mobile-card-table thead { display: none; }
-      .mobile-card-table tbody tr { display: block; border: 1px solid; border-radius: 0.75rem; padding: 0.75rem; margin-bottom: 0.5rem; }
-      .mobile-card-table tbody tr td { display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border: none !important; }
-      .mobile-card-table tbody tr td::before { content: attr(data-label); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
-    }
+    .toggle{position:relative;width:52px;height:28px;border-radius:14px;cursor:pointer;background:#e2e8f0;transition:background .3s}
+    .dark .toggle{background:#334155}
+    .toggle .knob{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;background:#fbbf24;transition:transform .3s,background .3s;display:flex;align-items:center;justify-content:center;font-size:13px}
+    .toggle.on .knob{transform:translateX(24px);background:#818cf8}
   </style>
 </head>
-<body class="min-h-screen transition-colors duration-300" style="background-color: var(--color-primary-light);">
+<body class="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
   <% if (user) { %>
-  <nav class="text-white shadow-lg sticky top-0 z-40 transition-colors duration-300" style="background-color: var(--color-primary); border-bottom: 1px solid var(--color-primary-hover);">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4">
+  <nav class="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-40 border-b border-gray-200 dark:border-gray-800">
+    <div class="max-w-5xl mx-auto px-4">
       <div class="flex items-center justify-between h-14">
-        <a href="/" class="font-bold text-base sm:text-lg whitespace-nowrap flex items-center gap-2">
-          <span class="text-xl">⏰</span>
-          <span class="hidden xs:inline">Control Asistencia</span>
+        <a href="/" class="font-bold text-base flex items-center gap-2 text-gray-800 dark:text-white">
+          <span class="text-lg">⏰</span> Control Asistencia
         </a>
 
-        <div class="hidden md:flex items-center space-x-1">
+        <div class="hidden md:flex items-center gap-1">
           <% if (user.rol === 'admin') { %>
-            <a href="/admin" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Dashboard</a>
-            <a href="/admin/empleados" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Empleados</a>
-            <a href="/admin/areas" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Áreas</a>
-            <a href="/admin/horarios" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Horarios</a>
-            <a href="/admin/tardanzas" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Tardanzas</a>
-            <a href="/admin/config" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Config</a>
+            <a href="/admin" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Dashboard</a>
+            <a href="/admin/empleados" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Empleados</a>
+            <a href="/admin/areas" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Áreas</a>
+            <a href="/admin/horarios" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Horarios</a>
+            <a href="/admin/tardanzas" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Tardanzas</a>
+            <a href="/admin/config" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Config</a>
           <% } else { %>
-            <a href="/empleado" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Marcar Entrada</a>
-            <a href="/empleado/historial" class="nav-link px-3 py-1.5 rounded-lg text-sm transition">Mi Historial</a>
+            <a href="/empleado" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Marcar</a>
+            <a href="/empleado/historial" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Historial</a>
           <% } %>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-          <div class="flex items-center gap-1.5 mr-1">
-            <div class="palette-btn active" style="background:#2563eb;" onclick="setPalette('blue')" title="Azul"></div>
-            <div class="palette-btn" style="background:#059669;" onclick="setPalette('green')" title="Verde"></div>
-            <div class="palette-btn" style="background:#7c3aed;" onclick="setPalette('purple')" title="Púrpura"></div>
-            <div class="palette-btn" style="background:#ea580c;" onclick="setPalette('warm')" title="Cálido"></div>
-          </div>
-          <div class="theme-toggle day" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema día/noche">
+        <div class="flex items-center gap-3">
+          <div class="toggle" id="themeToggle" onclick="toggleTheme()" title="Modo día/noche">
             <div class="knob"><span id="themeIcon">☀️</span></div>
           </div>
-          <span class="text-xs sm:text-sm opacity-80 hidden sm:inline max-w-[100px] truncate"><%= user.nombre %></span>
-          <a href="/logout" class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded-lg text-xs font-medium transition">Salir</a>
-          <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="md:hidden p-1.5 rounded-lg hover:opacity-80 transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          <button onclick="document.getElementById('mob').classList.toggle('hidden')" class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
           </button>
         </div>
       </div>
     </div>
 
-    <div id="mobileMenu" class="hidden md:hidden pb-2 transition-colors duration-300" style="background-color: var(--color-primary); border-top: 1px solid var(--color-primary-hover);">
-      <div class="px-3 pt-2 space-y-0.5">
+    <div id="mob" class="hidden md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <div class="px-4 py-2 space-y-1">
         <% if (user.rol === 'admin') { %>
-          <a href="/admin" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>📊</span> Dashboard
-          </a>
-          <a href="/admin/empleados" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>👥</span> Empleados
-          </a>
-          <a href="/admin/areas" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>🏢</span> Áreas
-          </a>
-          <a href="/admin/horarios" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>🕐</span> Horarios
-          </a>
-          <a href="/admin/tardanzas" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>⚠️</span> Tardanzas
-          </a>
-          <a href="/admin/config" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>⚙️</span> Configuración
-          </a>
+          <a href="/admin" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>📊</span> Dashboard</a>
+          <a href="/admin/empleados" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>👥</span> Empleados</a>
+          <a href="/admin/areas" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>🏢</span> Áreas</a>
+          <a href="/admin/horarios" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>🕐</span> Horarios</a>
+          <a href="/admin/tardanzas" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>⚠️</span> Tardanzas</a>
+          <a href="/admin/config" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>⚙️</span> Configuración</a>
         <% } else { %>
-          <a href="/empleado" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>✅</span> Marcar Entrada
-          </a>
-          <a href="/empleado/historial" class="flex items-center gap-2 py-2.5 px-3 rounded-lg hover:opacity-80 text-sm transition">
-            <span>📋</span> Mi Historial
-          </a>
+          <a href="/empleado" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>✅</span> Marcar Entrada</a>
+          <a href="/empleado/historial" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>📋</span> Mi Historial</a>
         <% } %>
-        <div class="border-t opacity-30 pt-2 mt-1">
-          <span class="block py-2 px-3 text-xs">👤 <%= user.nombre %></span>
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-2 mt-1 flex items-center justify-between">
+          <span class="text-xs text-gray-400 dark:text-gray-500 pl-3">👤 <%= user.nombre %></span>
+          <a href="/logout" class="text-red-500 hover:text-red-600 text-xs font-medium px-3 py-2">Salir</a>
         </div>
       </div>
     </div>
   </nav>
   <% } %>
 
-  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+  <main class="max-w-5xl mx-auto px-4 py-5">
     <% if (typeof success !== 'undefined' && success) { %>
-    <div class="card-surface border p-3 sm:p-4 mb-4 rounded-xl flex justify-between items-center shadow-sm" style="color: #16a34a;">
-      <span class="text-sm"><%= success %></span>
-      <button onclick="this.parentElement.remove()" class="font-bold ml-3 text-lg opacity-50 hover:opacity-100">&times;</button>
+    <div class="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 p-3 rounded-xl mb-4 text-sm flex justify-between items-center">
+      <span><%= success %></span>
+      <button onclick="this.parentElement.remove()" class="text-green-400 hover:text-green-600 font-bold text-lg leading-none">&times;</button>
     </div>
     <% } %>
     <% if (typeof error !== 'undefined' && error) { %>
-    <div class="card-surface border p-3 sm:p-4 mb-4 rounded-xl flex justify-between items-center shadow-sm" style="color: #dc2626;">
-      <span class="text-sm"><%= error %></span>
-      <button onclick="this.parentElement.remove()" class="font-bold ml-3 text-lg opacity-50 hover:opacity-100">&times;</button>
+    <div class="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-3 rounded-xl mb-4 text-sm flex justify-between items-center">
+      <span><%= error %></span>
+      <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600 font-bold text-lg leading-none">&times;</button>
     </div>
     <% } %>
     <%- body %>
   </main>
 
   <script>
-    function setPalette(name) {
-      document.documentElement.setAttribute('data-palette', name);
-      localStorage.setItem('palette', name);
-      document.querySelectorAll('.palette-btn').forEach(function(btn) { btn.classList.remove('active'); });
-      event.target.classList.add('active');
-    }
-
     function toggleTheme() {
-      var html = document.documentElement;
-      var toggle = document.getElementById('themeToggle');
-      var icon = document.getElementById('themeIcon');
-      html.classList.toggle('dark');
-      var isDark = html.classList.contains('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-      toggle.className = 'theme-toggle ' + (isDark ? 'night' : 'day');
-      icon.textContent = isDark ? '🌙' : '☀️';
-    }
-
-    (function() {
+      document.documentElement.classList.toggle('dark');
       var isDark = document.documentElement.classList.contains('dark');
-      var palette = document.documentElement.getAttribute('data-palette') || 'blue';
-      var toggle = document.getElementById('themeToggle');
-      var icon = document.getElementById('themeIcon');
-      if (toggle) {
-        toggle.className = 'theme-toggle ' + (isDark ? 'night' : 'day');
-        icon.textContent = isDark ? '🌙' : '☀️';
-      }
-      document.querySelectorAll('.palette-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-        var btnPalette = btn.getAttribute('onclick').match(/'(\w+)'/)[1];
-        if (btnPalette === palette) btn.classList.add('active');
-      });
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      document.getElementById('themeToggle').className = 'toggle' + (isDark ? ' on' : '');
+      document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+    }
+    (function() {
+      var d = document.documentElement.classList.contains('dark');
+      var t = document.getElementById('themeToggle');
+      var i = document.getElementById('themeIcon');
+      if (t) { t.className = 'toggle' + (d ? ' on' : ''); i.textContent = d ? '🌙' : '☀️'; }
     })();
   </script>
 </body>

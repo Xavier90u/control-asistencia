@@ -1,52 +1,46 @@
 <% titulo = 'Dashboard - Admin'; %>
-<h1 class="text-2xl sm:text-3xl font-bold text-primary mb-6">Dashboard</h1>
+<h1 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Dashboard</h1>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 sm:mb-8">
-  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border border-l-4 hover:shadow-xl transition" style="border-left-color: var(--color-primary);">
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-muted text-xs font-medium uppercase tracking-wide">Total Empleados</p>
-        <p class="text-3xl sm:text-4xl font-bold text-primary mt-2"><%= totalEmpleados %></p>
-      </div>
-      <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background-color: var(--color-primary-light);">👥</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Empleados</p>
+      <p class="text-3xl font-bold text-gray-800 dark:text-white mt-1"><%= totalEmpleados %></p>
     </div>
+    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center text-xl">👥</div>
   </div>
-  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border border-l-4 border-l-green-500 hover:shadow-xl transition">
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-muted text-xs font-medium uppercase tracking-wide">Asistencias Hoy</p>
-        <p class="text-3xl sm:text-4xl font-bold text-primary mt-2"><%= asistenciasHoy %></p>
-      </div>
-      <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-2xl">✅</div>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Asistencias Hoy</p>
+      <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-1"><%= asistenciasHoy %></p>
     </div>
+    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center text-xl">✅</div>
   </div>
-  <div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border border-l-4 border-l-red-500 hover:shadow-xl transition">
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-muted text-xs font-medium uppercase tracking-wide">Tardanzas Hoy</p>
-        <p class="text-3xl sm:text-4xl font-bold text-primary mt-2"><%= tardanzasHoy %></p>
-      </div>
-      <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-2xl">⚠️</div>
+  <div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Tardanzas Hoy</p>
+      <p class="text-3xl font-bold text-red-600 dark:text-red-400 mt-1"><%= tardanzasHoy %></p>
     </div>
+    <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-xl flex items-center justify-center text-xl">⚠️</div>
   </div>
 </div>
 
-<div class="card-surface rounded-2xl shadow-lg p-5 sm:p-6 border">
-  <h2 class="text-base sm:text-lg font-bold text-primary mb-4 flex items-center gap-2">
-    <span>⚙️</span> Configuración General
+<div class="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
+  <h2 class="text-sm font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+    <span>⚙️</span> Configuración
   </h2>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-    <div class="p-4 rounded-xl" style="background-color: var(--color-surface-alt);">
-      <p class="text-muted text-xs font-medium uppercase">Hora de inicio</p>
-      <p class="text-xl font-bold text-primary mt-1"><%= config.hora_inicio_general || '08:00' %></p>
+  <div class="grid grid-cols-3 gap-2">
+    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl text-center">
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase">Inicio</p>
+      <p class="text-lg font-bold text-gray-800 dark:text-white mt-0.5"><%= config.hora_inicio_general || '08:00' %></p>
     </div>
-    <div class="p-4 rounded-xl" style="background-color: var(--color-surface-alt);">
-      <p class="text-muted text-xs font-medium uppercase">Tolerancia</p>
-      <p class="text-xl font-bold text-primary mt-1"><%= config.tolerancia_general || '10' %> min</p>
+    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl text-center">
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase">Tolerancia</p>
+      <p class="text-lg font-bold text-gray-800 dark:text-white mt-0.5"><%= config.tolerancia_general || '10' %> min</p>
     </div>
-    <div class="p-4 rounded-xl" style="background-color: var(--color-surface-alt);">
-      <p class="text-muted text-xs font-medium uppercase">Descuento/min</p>
-      <p class="text-xl font-bold text-primary mt-1">S/ <%= parseFloat(config.descuento_por_minuto || '0.50').toFixed(2) %></p>
+    <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl text-center">
+      <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase">Dto/min</p>
+      <p class="text-lg font-bold text-gray-800 dark:text-white mt-0.5">S/ <%= parseFloat(config.descuento_por_minuto || '0.50').toFixed(2) %></p>
     </div>
   </div>
 </div>

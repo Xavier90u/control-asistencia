@@ -1,47 +1,45 @@
 <% titulo = 'Empleados - Admin'; %>
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
-  <h1 class="text-2xl sm:text-3xl font-bold text-primary">Empleados</h1>
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-xl font-bold text-gray-800 dark:text-white">Empleados</h1>
   <button onclick="document.getElementById('modalCreate').classList.remove('hidden')"
-    class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg w-full sm:w-auto transition">
-    + Nuevo Empleado
+    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
+    + Nuevo
   </button>
 </div>
 
-<div class="card-surface rounded-2xl shadow-lg overflow-hidden border">
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
   <div class="overflow-x-auto mobile-card-table">
     <table class="w-full text-sm">
-      <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+      <thead class="bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 uppercase text-[11px]">
         <tr>
-          <th class="text-left py-3 px-3 sm:px-4">Nombre</th>
-          <th class="text-left py-3 px-3 sm:px-4 hidden sm:table-cell">Email</th>
-          <th class="text-center py-3 px-3 sm:px-4">Estado</th>
-          <th class="text-center py-3 px-3 sm:px-4 hidden md:table-cell">Área</th>
-          <th class="text-center py-3 px-3 sm:px-4">Acciones</th>
+          <th class="text-left py-2.5 px-3">Nombre</th>
+          <th class="text-left py-2.5 px-3 hidden sm:table-cell">Email</th>
+          <th class="text-center py-2.5 px-3">Estado</th>
+          <th class="text-center py-2.5 px-3 hidden md:table-cell">Área</th>
+          <th class="text-center py-2.5 px-3">Acciones</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
         <% empleados.forEach(function(emp) { %>
-        <tr>
-          <td class="py-3 px-3 sm:px-4" data-label="Nombre">
-            <div class="font-semibold text-primary"><%= emp.nombre %></div>
-            <div class="text-xs text-muted sm:hidden"><%= emp.email %></div>
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+          <td class="py-2.5 px-3" data-label="Nombre">
+            <div class="font-semibold text-gray-800 dark:text-white text-sm"><%= emp.nombre %></div>
+            <div class="text-[11px] text-gray-400 sm:hidden"><%= emp.email %></div>
           </td>
-          <td class="py-3 px-3 sm:px-4 text-muted hidden sm:table-cell"><%= emp.email %></td>
-          <td class="text-center py-3 px-3 sm:px-4" data-label="Estado">
+          <td class="py-2.5 px-3 text-gray-500 dark:text-gray-400 text-xs hidden sm:table-cell"><%= emp.email %></td>
+          <td class="text-center py-2.5 px-3" data-label="Estado">
             <% if (emp.activo) { %>
-              <span class="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Activo</span>
+              <span class="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full text-[11px] font-bold">Activo</span>
             <% } else { %>
-              <span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Inactivo</span>
+              <span class="bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full text-[11px] font-bold">Inactivo</span>
             <% } %>
           </td>
-          <td class="text-center py-3 px-3 sm:px-4 text-muted hidden md:table-cell"><%= emp.area_nombre %></td>
-          <td class="text-center py-3 px-3 sm:px-4" data-label="Acciones">
-            <div class="flex justify-center gap-1 sm:gap-2">
-              <a href="/admin/empleados/<%= emp.id %>/editar"
-                class="text-primary px-2.5 py-1 rounded-lg text-xs font-semibold transition hover:opacity-80" style="background-color: var(--color-primary-light);">Editar</a>
+          <td class="text-center py-2.5 px-3 text-gray-500 dark:text-gray-400 text-xs hidden md:table-cell"><%= emp.area_nombre %></td>
+          <td class="text-center py-2.5 px-3" data-label="Acciones">
+            <div class="flex justify-center gap-1">
+              <a href="/admin/empleados/<%= emp.id %>/editar" class="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-lg text-[11px] font-semibold transition hover:bg-blue-100">Editar</a>
               <form action="/admin/empleados/<%= emp.id %>/toggle" method="POST" class="inline">
-                <button type="submit"
-                  class="<%= emp.activo ? 'text-red-600 bg-red-50 hover:bg-red-100' : 'text-green-600 bg-green-50 hover:bg-green-100' %> px-2.5 py-1 rounded-lg text-xs font-semibold transition">
+                <button type="submit" class="<%= emp.activo ? 'text-red-600 bg-red-50 dark:bg-red-950' : 'text-green-600 bg-green-50 dark:bg-green-950' %> px-2 py-1 rounded-lg text-[11px] font-semibold transition">
                   <%= emp.activo ? 'Desact.' : 'Activar' %>
                 </button>
               </form>
@@ -50,76 +48,58 @@
         </tr>
         <% }) %>
         <% if (empleados.length === 0) { %>
-        <tr><td colspan="5" class="text-center py-10 text-muted">No hay empleados registrados</td></tr>
+        <tr><td colspan="5" class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">No hay empleados</td></tr>
         <% } %>
       </tbody>
     </table>
   </div>
 </div>
 
-<div id="modalCreate" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-  <div class="card-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border">
-    <div class="flex justify-between items-center p-5 border-b" style="border-color: var(--color-border);">
-      <h2 class="text-lg font-bold text-primary">Nuevo Empleado</h2>
-      <button onclick="document.getElementById('modalCreate').classList.add('hidden')" class="w-8 h-8 rounded-full flex items-center justify-center transition" style="background-color: var(--color-surface-alt); color: var(--color-muted);">&times;</button>
+<div id="modalCreate" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+  <div class="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-gray-800">
+    <div class="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white dark:bg-gray-900 z-10">
+      <h2 class="text-base font-bold text-gray-800 dark:text-white">Nuevo Empleado</h2>
+      <button onclick="document.getElementById('modalCreate').classList.add('hidden')" class="w-8 h-8 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 transition">&times;</button>
     </div>
-    <form action="/admin/empleados" method="POST" class="p-5 space-y-4">
+    <form action="/admin/empleados" method="POST" class="p-4 space-y-3">
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Nombre completo</label>
-        <input type="text" name="nombre" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Nombre</label>
+        <input type="text" name="nombre" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Email</label>
-        <input type="email" name="email" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Email</label>
+        <input type="email" name="email" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Contraseña</label>
-        <input type="password" name="password" required
-          class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Contraseña</label>
+        <input type="password" name="password" required class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1.5" style="color: var(--color-muted);">Área / Carrera</label>
-        <select name="area" class="w-full px-4 py-2.5 border-2 rounded-xl focus:ring-2 outline-none transition"
-          style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
+        <label class="block text-gray-600 dark:text-gray-400 text-xs font-semibold mb-1">Área</label>
+        <select name="area" class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none">
           <option value="">Sin área</option>
           <% areas.forEach(function(a) { %>
           <option value="<%= a._id %>"><%= a.nombre %></option>
           <% }); %>
         </select>
       </div>
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-3 gap-2">
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Hora inicio</label>
-          <input type="time" name="hora_inicio"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
-          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Hora</label>
+          <input type="time" name="hora_inicio" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Tolerancia</label>
-          <input type="number" name="tolerancia_minutos" min="0" placeholder="min"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
-          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Toler.</label>
+          <input type="number" name="tolerancia_minutos" min="0" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1" style="color: var(--color-muted);">Dto. x min</label>
-          <input type="number" step="0.01" min="0" name="descuento_por_minuto" placeholder="S/"
-            class="w-full px-3 py-2 border-2 rounded-xl focus:ring-2 outline-none transition"
-            style="border-color: var(--color-border); --tw-ring-color: var(--color-primary); background-color: var(--color-surface-alt); color: var(--color-muted);">
-          <p class="text-xs text-muted mt-0.5 opacity-60">Vacío = General</p>
+          <label class="block text-gray-600 dark:text-gray-400 text-[11px] font-semibold mb-1">Dto/min</label>
+          <input type="number" step="0.01" min="0" name="descuento_por_minuto" class="w-full px-2 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
         </div>
       </div>
-      <div class="flex justify-end gap-3 pt-4 border-t" style="border-color: var(--color-border);">
-        <button type="button" onclick="document.getElementById('modalCreate').classList.add('hidden')"
-          class="px-5 py-2.5 border-2 rounded-xl text-sm font-medium transition"
-          style="color: var(--color-muted); border-color: var(--color-border);">Cancelar</button>
-        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition">Guardar</button>
+      <div class="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+        <button type="button" onclick="document.getElementById('modalCreate').classList.add('hidden')" class="px-4 py-2.5 text-gray-500 border border-gray-300 dark:border-gray-700 rounded-xl text-sm transition">Cancelar</button>
+        <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition">Guardar</button>
       </div>
     </form>
   </div>

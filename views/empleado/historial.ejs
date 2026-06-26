@@ -1,66 +1,65 @@
 <% titulo = 'Mi Historial'; %>
-<h1 class="text-2xl sm:text-3xl font-bold text-primary mb-6">Mi Historial</h1>
+<h1 class="text-xl font-bold text-gray-800 dark:text-white mb-4">Mi Historial</h1>
 
-<div class="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
-  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4" style="border-left-color: var(--color-primary);">
-    <p class="text-muted text-xs font-medium uppercase tracking-wide">Registros</p>
-    <p class="text-2xl sm:text-3xl font-bold text-primary mt-1"><%= resumen.total_dias %></p>
+<div class="grid grid-cols-3 gap-3 mb-5">
+  <div class="bg-white dark:bg-gray-900 rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 shadow-sm">
+    <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Registros</p>
+    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1"><%= resumen.total_dias %></p>
   </div>
-  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4 border-l-amber-500">
-    <p class="text-muted text-xs font-medium uppercase tracking-wide">Tardanzas</p>
-    <p class="text-2xl sm:text-3xl font-bold text-amber-600 mt-1"><%= resumen.tardanzas || 0 %></p>
+  <div class="bg-white dark:bg-gray-900 rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 shadow-sm border-l-4 border-l-amber-400">
+    <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Tardanzas</p>
+    <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1"><%= resumen.tardanzas || 0 %></p>
   </div>
-  <div class="card-surface rounded-2xl shadow-lg p-4 sm:p-5 border-l-4 border-l-red-500">
-    <p class="text-muted text-xs font-medium uppercase tracking-wide">Min. retraso</p>
-    <p class="text-2xl sm:text-3xl font-bold text-red-600 mt-1"><%= resumen.total_minutos_retraso || 0 %></p>
+  <div class="bg-white dark:bg-gray-900 rounded-xl p-3.5 border border-gray-100 dark:border-gray-800 shadow-sm border-l-4 border-l-red-400">
+    <p class="text-gray-400 dark:text-gray-500 text-[11px] uppercase font-medium">Min.</p>
+    <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1"><%= resumen.total_minutos_retraso || 0 %></p>
   </div>
 </div>
 
 <% semanas.forEach(function(semana) { %>
-<div class="mb-6">
-  <div class="flex items-center gap-3 mb-3">
-    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background-color: var(--color-primary-light); color: var(--color-primary);">📅</div>
+<div class="mb-5">
+  <div class="flex items-center gap-2.5 mb-2.5">
+    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm">📅</div>
     <div>
-      <h2 class="font-bold text-primary text-base sm:text-lg">Semana: <%= semana.label %></h2>
-      <p class="text-xs text-muted"><%= semana.totalRegistros %> registros<% if (semana.totalTardanzas > 0) { %> · <span class="text-amber-500"><%= semana.totalTardanzas %> tardanza(s)</span><% } %></p>
+      <h2 class="font-bold text-gray-800 dark:text-white text-sm"><%= semana.label %></h2>
+      <p class="text-[11px] text-gray-400 dark:text-gray-500"><%= semana.totalRegistros %> registros<% if (semana.totalTardanzas > 0) { %> · <span class="text-amber-500"><%= semana.totalTardanzas %> tardanza(s)</span><% } %></p>
     </div>
   </div>
-
-  <div class="card-surface rounded-2xl shadow-lg border overflow-hidden">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
     <div class="mobile-card-table">
       <table class="w-full text-sm">
-        <thead style="background-color: var(--color-surface-alt);" class="text-muted uppercase text-xs">
+        <thead class="bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500 uppercase text-[11px]">
           <tr>
-            <th class="text-left py-3 px-3 sm:px-4">Día</th>
-            <th class="text-center py-3 px-3 sm:px-4">Hora Marcada</th>
-            <th class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell">Hora Esperada</th>
-            <th class="text-center py-3 px-3 sm:px-4">Estado</th>
-            <th class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell">Retraso</th>
+            <th class="text-left py-2.5 px-3">Día</th>
+            <th class="text-center py-2.5 px-3">Marcada</th>
+            <th class="text-center py-2.5 px-3 hidden sm:table-cell">Esperada</th>
+            <th class="text-center py-2.5 px-3">Estado</th>
+            <th class="text-center py-2.5 px-3 hidden sm:table-cell">Retraso</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
           <% semana.registros.forEach(function(r) { %>
-          <tr>
-            <td class="py-3 px-3 sm:px-4" data-label="Día">
-              <div class="font-semibold text-primary"><%= r.diaLabel %></div>
-              <div class="text-xs text-muted"><%= r.fecha %></div>
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+            <td class="py-2.5 px-3" data-label="Día">
+              <div class="font-semibold text-gray-800 dark:text-white text-sm"><%= r.diaLabel %></div>
+              <div class="text-[11px] text-gray-400 dark:text-gray-500"><%= r.fecha %></div>
             </td>
-            <td class="text-center py-3 px-3 sm:px-4 font-mono font-semibold text-sm <%= r.minutosRetraso > 0 ? 'text-red-600' : 'text-green-600' %>" data-label="Marcada">
+            <td class="text-center py-2.5 px-3 font-mono font-bold text-sm <%= r.minutosRetraso > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>" data-label="Marcada">
               <%= r.horaMarcacion.substring(0,5) %>
             </td>
-            <td class="text-center py-3 px-3 sm:px-4 text-muted hidden sm:table-cell"><%= r.horaEsperada %></td>
-            <td class="text-center py-3 px-3 sm:px-4" data-label="Estado">
+            <td class="text-center py-2.5 px-3 text-gray-400 dark:text-gray-500 text-xs hidden sm:table-cell"><%= r.horaEsperada %></td>
+            <td class="text-center py-2.5 px-3" data-label="Estado">
               <% if (r.minutosRetraso > 0) { %>
-                <span class="bg-red-100 text-red-700 px-2.5 py-0.5 rounded-full text-xs font-bold">Tarde</span>
+                <span class="bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full text-[11px] font-bold">Tarde</span>
               <% } else { %>
-                <span class="bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full text-xs font-bold">OK</span>
+                <span class="bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full text-[11px] font-bold">OK</span>
               <% } %>
             </td>
-            <td class="text-center py-3 px-3 sm:px-4 hidden sm:table-cell" data-label="Retraso">
+            <td class="text-center py-2.5 px-3 hidden sm:table-cell">
               <% if (r.minutosRetraso > 0) { %>
-                <span class="text-red-600 font-semibold"><%= r.minutosRetraso %> min</span>
+                <span class="text-red-600 dark:text-red-400 font-semibold text-xs"><%= r.minutosRetraso %> min</span>
               <% } else { %>
-                <span class="text-muted opacity-40">—</span>
+                <span class="text-gray-300 dark:text-gray-600">—</span>
               <% } %>
             </td>
           </tr>
@@ -73,22 +72,22 @@
 <% }) %>
 
 <% if (registrosFormateados.length === 0) { %>
-<div class="card-surface rounded-2xl shadow-lg border p-10 text-center">
-  <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl" style="background-color: var(--color-surface-alt);">📋</div>
-  <p class="text-muted font-medium">Aún no tienes registros de asistencia</p>
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 text-center">
+  <div class="w-14 h-14 mx-auto mb-3 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-2xl">📋</div>
+  <p class="text-gray-400 dark:text-gray-500 text-sm">Sin registros aún</p>
 </div>
 <% } %>
 
 <% if (totalPages > 1) { %>
-<div class="flex justify-center mt-6 gap-2">
+<div class="flex justify-center mt-5 gap-1.5">
   <% if (page > 1) { %>
-    <a href="/empleado/historial?page=<%= page - 1 %>" class="card-surface border px-4 py-2 rounded-xl text-sm hover:opacity-80 transition font-medium">← Anterior</a>
+    <a href="/empleado/historial?page=<%= page - 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">← Ant</a>
   <% } %>
   <% for (var i = 1; i <= totalPages; i++) { %>
-    <a href="/empleado/historial?page=<%= i %>" class="w-10 h-10 flex items-center justify-center border rounded-xl text-sm font-medium transition <%= i === page ? 'btn-primary border-0 shadow-lg' : 'card-surface hover:opacity-80' %>"><%= i %></a>
+    <a href="/empleado/historial?page=<%= i %>" class="w-9 h-9 flex items-center justify-center rounded-xl text-xs font-medium transition <%= i === page ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>"><%= i %></a>
   <% } %>
   <% if (page < totalPages) { %>
-    <a href="/empleado/historial?page=<%= page + 1 %>" class="card-surface border px-4 py-2 rounded-xl text-sm hover:opacity-80 transition font-medium">Siguiente →</a>
+    <a href="/empleado/historial?page=<%= page + 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">Sig →</a>
   <% } %>
 </div>
 <% } %>
