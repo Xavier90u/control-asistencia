@@ -290,4 +290,5 @@ module.exports = {
   tardanzasView, configView, updateConfig, seedData,
   areasView, createArea, editAreaForm, updateArea, deleteArea,
   horariosView, updateHorarios,
+  notificacionesAPI, marcarLeidas,
 };
