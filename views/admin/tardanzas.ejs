@@ -93,3 +93,18 @@
   <p class="text-gray-400 text-sm">Sin registros</p>
 </div>
 <% } %>
+
+<% if (totalPaginas > 1) { %>
+<div class="flex justify-center mt-5 gap-1.5">
+  <% var baseUrl = '/admin/tardanzas?'; if (filtros.fecha_desde) baseUrl += 'fecha_desde=' + filtros.fecha_desde + '&'; if (filtros.fecha_hasta) baseUrl += 'fecha_hasta=' + filtros.fecha_hasta + '&'; if (filtros.empleado_id) baseUrl += 'empleado_id=' + filtros.empleado_id + '&'; %>
+  <% if (page > 1) { %>
+    <a href="<%= baseUrl %>page=<%= page - 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">← Ant</a>
+  <% } %>
+  <% for (var i = 1; i <= totalPaginas; i++) { %>
+    <a href="<%= baseUrl %>page=<%= i %>" class="w-9 h-9 flex items-center justify-center rounded-xl text-xs font-medium transition <%= i === page ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>"><%= i %></a>
+  <% } %>
+  <% if (page < totalPaginas) { %>
+    <a href="<%= baseUrl %>page=<%= page + 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">Sig →</a>
+  <% } %>
+</div>
+<% } %>

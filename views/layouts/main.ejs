@@ -76,10 +76,13 @@
           </div>
           <% } %>
 
-          <a href="/logout" class="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg text-xs font-medium transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-            Salir
-          </a>
+          <div class="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200 dark:border-gray-700">
+            <span class="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline"><%= user.nombre %></span>
+            <a href="/logout" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+              Salir
+            </a>
+          </div>
           <div class="toggle" id="themeToggle" onclick="toggleTheme()" title="Modo día/noche">
             <div class="knob"><span id="themeIcon">☀️</span></div>
           </div>
@@ -104,9 +107,15 @@
           <a href="/empleado/historial" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>📋</span> Mi Historial</a>
           <a href="/empleado/qr" class="flex items-center gap-3 py-3 px-3 rounded-xl text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"><span>📱</span> Mi QR</a>
         <% } %>
-        <div class="border-t border-gray-200 dark:border-gray-800 pt-2 mt-1 flex items-center justify-between">
-          <span class="text-xs text-gray-400 dark:text-gray-500 pl-3">👤 <%= user.nombre %></span>
-          <a href="/logout" class="text-red-500 hover:text-red-600 text-xs font-medium px-3 py-2">Salir</a>
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-3 mt-2">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-700 dark:text-gray-200 font-medium pl-3">👤 <%= user.nombre %></span>
+            <span class="text-[11px] text-gray-400 dark:text-gray-500 px-3"><%= user.rol === 'admin' ? 'Administrador' : 'Empleado' %></span>
+          </div>
+          <a href="/logout" class="flex items-center gap-2 w-full py-3 px-3 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Cerrar Sesión
+          </a>
         </div>
       </div>
     </div>

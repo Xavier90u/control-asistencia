@@ -1,6 +1,6 @@
 <% titulo = 'Empleados - Admin'; %>
 <div class="flex justify-between items-center mb-4">
-  <h1 class="text-xl font-bold text-gray-800 dark:text-white">Empleados</h1>
+  <h1 class="text-xl font-bold text-gray-800 dark:text-white">Empleados <span class="text-sm font-normal text-gray-400">(<%= total %>)</span></h1>
   <button onclick="document.getElementById('modalCreate').classList.remove('hidden')"
     class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
     + Nuevo
@@ -54,6 +54,20 @@
     </table>
   </div>
 </div>
+
+<% if (totalPaginas > 1) { %>
+<div class="flex justify-center mt-5 gap-1.5">
+  <% if (page > 1) { %>
+    <a href="/admin/empleados?page=<%= page - 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">← Ant</a>
+  <% } %>
+  <% for (var i = 1; i <= totalPaginas; i++) { %>
+    <a href="/admin/empleados?page=<%= i %>" class="w-9 h-9 flex items-center justify-center rounded-xl text-xs font-medium transition <%= i === page ? 'bg-blue-600 text-white shadow-md' : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800' %>"><%= i %></a>
+  <% } %>
+  <% if (page < totalPaginas) { %>
+    <a href="/admin/empleados?page=<%= page + 1 %>" class="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition">Sig →</a>
+  <% } %>
+</div>
+<% } %>
 
 <div id="modalCreate" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
   <div class="bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-gray-800">

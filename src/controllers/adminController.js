@@ -46,14 +46,20 @@ async function marcarLeidas(req, res) {
 }
 
 async function listEmpleados(req, res) {
+  const porPagina = 10;
+  const pag = parseInt(req.query.page) || 1;
+  const total = await Usuario.countDocuments({ rol: "empleado" });
+  const totalPaginas = Math.ceil(total / porPagina);
   const docs = await Usuario.find({ rol: "empleado" })
     .populate("area", "nombre")
     .select("nombre email activo area horaInicio createdAt")
     .sort({ activo: -1, nombre: 1 })
+    .skip((pag - 1) * porPagina)
+    .limit(porPagina)
     .lean();
   const empleados = docs.map((e) => ({ ...e, id: e._id.toString(), area_nombre: e.area?.nombre || "—" }));
   const areas = await Area.find().sort({ nombre: 1 }).lean();
-  res.render("admin/empleados", { empleados, areas });
+  res.render("admin/empleados", { empleados, areas, page: pag, totalPaginas, total });
 }
 
 async function createEmpleado(req, res) {
@@ -155,8 +161,13 @@ async function tardanzasView(req, res) {
     totalTardanzas: val.registros.filter(r => r.minutos_retraso > 0).length,
   }));
 
+  const porPagina = 4;
+  const pag = parseInt(req.query.page) || 1;
+  const totalPaginas = Math.ceil(semanasArray.length / porPagina);
+  const semanasPagina = semanasArray.slice((pag - 1) * porPagina, pag * porPagina);
+
   const empleados = (await Usuario.find({ rol: "empleado", activo: true }).select("nombre").sort({ nombre: 1 }).lean()).map((e) => ({ ...e, id: e._id.toString() }));
-  res.render("admin/tardanzas", { semanas: semanasArray, registros: registrosConDescuento, empleados, filtros: req.query, tzCfg });
+  res.render("admin/tardanzas", { semanas: semanasPagina, registros: registrosConDescuento, empleados, filtros: req.query, tzCfg, page: pag, totalPaginas });
 }
 
 async function configView(req, res) {
