@@ -41,7 +41,9 @@ async function marcacionView(req, res) {
   const todosMarcados = franjasConEstado.every((f) => f.marcada);
 
   const token = generarTokenQR(userId.toString());
-  const qrDataUrl = await QRCode.toDataURL(token, {
+  const baseUrl = process.env.BASE_URL || (req.protocol + "://" + req.get("host"));
+  const qrUrl = baseUrl + "/empleado/marcar-qr?token=" + encodeURIComponent(token);
+  const qrDataUrl = await QRCode.toDataURL(qrUrl, {
     width: 200,
     margin: 2,
     color: { dark: "#1e293b", light: "#ffffff" },
@@ -137,7 +139,9 @@ async function qrView(req, res) {
   const empleado = await Usuario.findById(userId).lean();
 
   const token = generarTokenQR(userId.toString());
-  const qrDataUrl = await QRCode.toDataURL(token, {
+  const baseUrl = process.env.BASE_URL || (req.protocol + "://" + req.get("host"));
+  const qrUrl = baseUrl + "/empleado/marcar-qr?token=" + encodeURIComponent(token);
+  const qrDataUrl = await QRCode.toDataURL(qrUrl, {
     width: 300,
     margin: 2,
     color: { dark: "#1e293b", light: "#ffffff" },
