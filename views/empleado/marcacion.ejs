@@ -86,9 +86,20 @@
       <% } %>
     <% } %>
 
-    <div class="mt-5 text-center border-t border-gray-100 dark:border-gray-800 pt-4 flex justify-center gap-4">
-      <a href="/empleado/historial" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">📋 Historial</a>
-      <a href="/empleado/qr" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">📱 Mi QR</a>
+    <div class="mt-5 text-center border-t border-gray-100 dark:border-gray-800 pt-4">
+      <button onclick="document.getElementById('qrSection').classList.toggle('hidden'); this.textContent = this.textContent === '📱 Mi QR' ? '✕ Cerrar QR' : '📱 Mi QR'" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline mb-3">
+        📱 Mi QR
+      </button>
+      <div id="qrSection" class="hidden">
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700">
+          <img src="<%= qrDataUrl %>" alt="QR Code" class="mx-auto rounded-xl border border-gray-200 dark:border-gray-700 mb-3" width="200" height="200">
+          <p class="text-gray-500 dark:text-gray-400 text-xs mb-1">Válido 24 horas · Se renueva automáticamente</p>
+          <p class="text-gray-400 dark:text-gray-500 text-[11px]">Escanea desde otro dispositivo para marcar</p>
+        </div>
+      </div>
+      <div class="flex justify-center gap-4 mt-3">
+        <a href="/empleado/historial" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">📋 Historial</a>
+      </div>
     </div>
   </div>
 </div>

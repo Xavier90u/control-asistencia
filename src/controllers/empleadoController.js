@@ -6,6 +6,7 @@ const Configuracion = require("../models/Configuracion");
 const tz = require("../utils/timezone");
 const horario = require("../utils/horario");
 const { generarTokenQR, verificarTokenQR } = require("../utils/qr");
+const { enviarWhatsApp, formatMensaje, formatMensajeEmpleado } = require("../utils/whatsapp");
 
 async function marcacionView(req, res) {
   const mongoose = require("mongoose");
@@ -39,12 +40,20 @@ async function marcacionView(req, res) {
 
   const todosMarcados = franjasConEstado.every((f) => f.marcada);
 
+  const token = generarTokenQR(userId.toString());
+  const qrDataUrl = await QRCode.toDataURL(token, {
+    width: 200,
+    margin: 2,
+    color: { dark: "#1e293b", light: "#ffffff" },
+  });
+
   res.render("empleado/marcacion", {
     empleado,
     franjas: franjasConEstado,
     todosMarcados,
     config: { ...config, ...tzCfg },
     retraso: req.query.retraso,
+    qrDataUrl,
   });
 }
 
@@ -106,6 +115,11 @@ async function marcar(req, res) {
       hora: horaStr,
     });
   }
+
+  const adminPhone = (await Configuracion.findOne({ clave: "admin_telefono" }).lean())?.valor;
+  const adminMsg = formatMensaje(tipo, empleado.nombre, franja, minutosRetraso);
+  if (adminPhone) enviarWhatsApp(adminPhone, adminMsg);
+  if (empleado.telefono) enviarWhatsApp(empleado.telefono, formatMensajeEmpleado(tipo, franja, minutosRetraso));
 
   let redirectMsg;
   if (minutosRetraso > 0) {
@@ -226,6 +240,11 @@ async function marcarPorQR(req, res) {
       empleado: empleado.nombre, tipo, mensaje: msg, fecha: fechaStr, hora: horaStr,
     });
   }
+
+  const adminPhone = (await Configuracion.findOne({ clave: "admin_telefono" }).lean())?.valor;
+  const adminMsg = formatMensaje(tipo, empleado.nombre, franja, minutosRetraso);
+  if (adminPhone) enviarWhatsApp(adminPhone, adminMsg);
+  if (empleado.telefono) enviarWhatsApp(empleado.telefono, formatMensajeEmpleado(tipo, franja, minutosRetraso));
 
   let resultMsg;
   if (minutosRetraso > 0) {

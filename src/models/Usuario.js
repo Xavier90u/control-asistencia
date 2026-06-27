@@ -11,6 +11,7 @@ const usuarioSchema = new mongoose.Schema(
     horaInicio: String,
     toleranciaMinutos: Number,
     descuentoPorMinuto: Number,
+    telefono: String,
   },
   { timestamps: true }
 );

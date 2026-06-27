@@ -63,7 +63,7 @@ async function listEmpleados(req, res) {
 }
 
 async function createEmpleado(req, res) {
-  const { nombre, email, password, area, hora_inicio, tolerancia_minutos, descuento_por_minuto } = req.body;
+  const { nombre, email, password, area, hora_inicio, tolerancia_minutos, descuento_por_minuto, telefono } = req.body;
   if (!nombre || !email || !password) return res.redirect("/admin/empleados?error=Completa todos los campos");
   if (await Usuario.findOne({ email })) return res.redirect("/admin/empleados?error=El email ya existe");
   const hashed = bcrypt.hashSync(password, 10);
@@ -73,6 +73,7 @@ async function createEmpleado(req, res) {
     horaInicio: hora_inicio || undefined,
     toleranciaMinutos: tolerancia_minutos ? parseInt(tolerancia_minutos) : undefined,
     descuentoPorMinuto: descuento_por_minuto ? parseFloat(descuento_por_minuto) : undefined,
+    telefono: telefono || undefined,
   });
   res.redirect("/admin/empleados?success=Empleado creado exitosamente");
 }
@@ -86,13 +87,14 @@ async function editEmpleadoForm(req, res) {
 }
 
 async function updateEmpleado(req, res) {
-  const { nombre, email, password, area, hora_inicio, tolerancia_minutos, descuento_por_minuto } = req.body;
+  const { nombre, email, password, area, hora_inicio, tolerancia_minutos, descuento_por_minuto, telefono } = req.body;
   const update = {
     nombre, email,
     area: area || undefined,
     horaInicio: hora_inicio || undefined,
     toleranciaMinutos: tolerancia_minutos ? parseInt(tolerancia_minutos) : undefined,
     descuentoPorMinuto: descuento_por_minuto ? parseFloat(descuento_por_minuto) : undefined,
+    telefono: telefono || undefined,
   };
   if (password && password.trim()) update.password = bcrypt.hashSync(password, 10);
   const result = await Usuario.updateOne({ _id: req.params.id, rol: "empleado" }, update);
@@ -177,7 +179,7 @@ async function configView(req, res) {
 }
 
 async function updateConfig(req, res) {
-  const { hora_inicio_general, tolerancia_general, descuento_por_minuto, zona_horaria, formato_fecha, formato_hora } = req.body;
+  const { hora_inicio_general, tolerancia_general, descuento_por_minuto, zona_horaria, formato_fecha, formato_hora, admin_telefono } = req.body;
   const updates = [
     { clave: "hora_inicio_general", valor: hora_inicio_general },
     { clave: "tolerancia_general", valor: tolerancia_general },
@@ -185,6 +187,7 @@ async function updateConfig(req, res) {
     { clave: "zona_horaria", valor: zona_horaria },
     { clave: "formato_fecha", valor: formato_fecha },
     { clave: "formato_hora", valor: formato_hora },
+    { clave: "admin_telefono", valor: admin_telefono },
   ];
   for (const u of updates) {
     if (u.valor !== undefined && u.valor !== null && u.valor !== "")
